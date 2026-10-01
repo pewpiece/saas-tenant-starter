@@ -1,0 +1,12 @@
+Django>=5.0,<5.1
+djangorestframework>=3.15,<3.16
+psycopg2-binary>=2.9,<3.0
+django-environ>=0.11,<0.12
+
+# Testing
+pytest>=8.0
+pytest-django>=4.8
+factory_boy>=3.3
+
+# Linting
+ruff>=0.6

@@ -1,0 +1,8 @@
+extend-exclude = ["migrations"]
+line-length = 100
+
+[lint]
+# RUF012 (mutable class attribute defaults) fires on ordinary Django/DRF
+# idioms (Meta.fields, permission_classes, etc.) throughout this codebase;
+# disabled rather than annotating every one with ClassVar.
+ignore = ["RUF012"]
