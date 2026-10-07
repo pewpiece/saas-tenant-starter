@@ -113,13 +113,26 @@ REST_FRAMEWORK = {
     # Basic first: DRF takes the WWW-Authenticate challenge from the first
     # class, so unauthenticated requests get a proper 401 instead of a 403.
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication",
+        "apps.core.authentication.ThrottledBasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.DefaultPagination",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": env.str("DJANGO_THROTTLE_ANON", default="30/min"),
+        "user": env.str("DJANGO_THROTTLE_USER", default="300/min"),
+    },
 }
+
+# Failed HTTP Basic logins per client IP before a temporary lockout (429).
+AUTH_FAILURE_LIMIT = env.int("DJANGO_AUTH_FAILURE_LIMIT", default=10)
+AUTH_FAILURE_WINDOW = env.int("DJANGO_AUTH_FAILURE_WINDOW", default=300)
 
 
 # Transport security. Defaults are strict whenever DEBUG is off; each one can

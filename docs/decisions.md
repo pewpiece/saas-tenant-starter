@@ -30,9 +30,11 @@ Ambiguous points, the simplest option chosen, and why.
   ownership or delete the org first. *(Milestone 1 used CASCADE, which
   deleted the user's projects in every org: D-07.)*
 
-- **Project list is unpaginated.** No `DEFAULT_PAGINATION_CLASS` is set, so
-  `GET /api/projects/` returns a plain JSON array. Fine for a starter; a
-  real multi-tenant app would paginate before this matters.
+- **Pagination and throttling defaults.** Page-number pagination, 20 per
+  page, `?page_size=` capped at 100. Throttles: 30/min anonymous, 300/min
+  per user (env-overridable). Failed Basic logins lock the client IP out for
+  5 minutes after 10 failures. Counters use the default cache (per process
+  with LocMemCache); a multi-worker deployment needs a shared cache.
 
 - **Tenant scoping is opt-in per view, and fails closed.** A view becomes
   tenant-scoped by using `TenantScopedViewMixin`. A view that forgets it and
