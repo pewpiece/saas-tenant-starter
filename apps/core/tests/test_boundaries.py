@@ -219,3 +219,47 @@ def test_email_login_is_case_sensitive_for_local_part(basic_client, org_a):
     other = basic_client(email="case@example.com", org_slug="org-a").get("/api/projects/")
 
     assert (exact.status_code, other.status_code) == (200, 401)
+
+
+# --- ZAP SQL-injection alerts (40018), replayed without throttling ---------------------
+# ZAP's boolean-based heuristic flagged signup/accept while the "auth" throttle
+# was flipping responses to 429 mid-scan. The same true/false payload pairs
+# must produce identical responses: the input never reaches SQL as code.
+
+
+@pytest.mark.parametrize(
+    "field, true_payload, false_payload",
+    [
+        ("email", "zaproxy@example.com AND 1=1 -- ", "zaproxy@example.com AND 1=2 -- "),
+        ("organization_slug", "John Doe' AND '1'='1' -- ", "John Doe' AND '1'='2' -- "),
+        ("organization_name", "x' OR '1'='1", "x' OR '1'='2"),
+    ],
+)
+def test_signup_sql_boolean_payloads_behave_identically(api_client, field, true_payload, false_payload):
+    def send(value):
+        body = {"email": "sqli@example.com", "password": "Sqli-Check-Pass-1", "organization_name": "S"}
+        body[field] = value
+        return api_client.post("/api/auth/signup/", body, format="json")
+
+    true_response = send(true_payload)
+    from apps.accounts.models import User
+    from apps.tenants.models import Organization
+
+    Organization.objects.all().delete()  # first: users who own an org cannot be deleted
+    User.objects.all().delete()
+    false_response = send(false_payload)
+
+    assert true_response.status_code == false_response.status_code
+    assert true_response.status_code in (201, 400)
+    if true_response.status_code == 400:
+        assert true_response.data.keys() == false_response.data.keys()
+
+
+@pytest.mark.parametrize("value", ["John Doe AND 1=1 -- ", "John Doe AND 1=2 -- "])
+def test_accept_sql_boolean_payloads_are_plain_data(api_client, value):
+    response = api_client.post(
+        "/api/invitations/accept/", {"token": "nope", "password": "x", "first_name": value}, format="json"
+    )
+
+    assert response.status_code == 400
+    assert list(response.data) == ["token"]

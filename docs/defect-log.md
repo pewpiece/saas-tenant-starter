@@ -28,6 +28,8 @@ any release).
 | D-16 | Invitation accepts an email whose local part exceeds 64 octets | Low | P3 | `test_boundaries.py::test_invitation_email_local_part_length` | 313d169 | Fixed |
 | D-17 | OpenAPI schema documents no error responses | Low | P3 | `apps/core/tests/test_openapi_contract.py` | 97e5968 | Fixed |
 | D-18 | HTTP Basic auth costs a 151 ms password hash per request, capping throughput at ~21 req/s | Medium | P2 | Locust: `docs/qa/load-test.md` | — | Open |
+| D-19 | Last-owner guard on delete trusts the unsaved in-memory role | Medium | P2 | `test_mutation_findings.py::test_delete_checks_the_stored_role_not_the_unsaved_one` | 6045a53 | Fixed |
+| D-20 | HTML pages (admin, Swagger UI) send no CSP / Permissions-Policy / COEP headers | Low | P3 | ZAP baseline: `docs/qa/zap/baseline-admin.txt` | — | Open |
 
 ---
 
@@ -297,3 +299,33 @@ any release).
 - **Status:** Open. Fixing it needs a token or session login flow, which is a
   product change outside this milestone; recorded as a known risk in the QA
   report.
+
+## D-19: Last-owner guard bypassed by an unsaved role change
+- **Severity / priority:** Medium / P2
+- **Found by:** writing tests for surviving mutants (mutmut run 1). A test
+  that refused a demotion and then called `delete()` on the same instance
+  deleted the last owner.
+- **Steps to reproduce:** load the only owner's `Membership`, set
+  `role = "admin"` without saving, call `delete()`.
+- **Expected:** `LastOwnerError`; membership kept.
+- **Actual:** deleted; `Membership.delete()` checked `self.role` (in memory)
+  instead of the stored role. No API path does this today, but admin or
+  system code could.
+- **Tests:** `test_delete_checks_the_stored_role_not_the_unsaved_one` (failing at 649cefa).
+- **Fix:** 6045a53 (reads the stored role under the org row lock).
+
+## D-20: Missing browser hardening headers on HTML pages
+- **Severity / priority:** Low / P3
+- **Found by:** OWASP ZAP baseline scan of `/admin/login/`
+  (`docs/qa/zap/baseline-admin.txt`): 0 FAIL, 8 WARN, 59 PASS.
+- **Expected:** `Content-Security-Policy`, `Permissions-Policy` and
+  `Cross-Origin-Embedder-Policy` on HTML responses.
+- **Actual:** not set. The JSON API is not affected (these headers protect
+  rendered HTML); the admin and Swagger UI pages are.
+- **Other warnings, triaged:** `csrftoken` cookie without HttpOnly (Django's
+  design: JS clients read it; `SESSION_COOKIE_HTTPONLY` is on), potential XSS
+  in the `next` attribute (false positive: Django escapes it), and three
+  informational rules (non-storable content, authentication request and
+  session management response identified).
+- **Status:** Open. Recommendation: add `django-csp` (or a small middleware)
+  with a policy that allows the admin's and Swagger UI's assets.
