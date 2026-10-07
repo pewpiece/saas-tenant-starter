@@ -25,6 +25,9 @@ any release).
 | D-13 | `objects.raw()` returns every tenant's rows | High | P1 | `test_save_guards.py::test_raw_on_tenant_manager_is_refused` | 0b3c152 | Fixed |
 | D-14 | OpenAPI generation crashes on a tenant model with a conditional unique constraint | Low | P2 | `config/tests/test_deploy_settings.py::test_check_deploy_passes_with_production_environment` | b81012a | Fixed |
 | D-15 | `POST /api/invitations/` without `role` returns 500 | Medium | P2 | `test_invitations.py::test_role_defaults_to_member_when_omitted` | d6f066f | Fixed |
+| D-16 | Invitation accepts an email whose local part exceeds 64 octets | Low | P3 | `test_boundaries.py::test_invitation_email_local_part_length` | 313d169 | Fixed |
+| D-17 | OpenAPI schema documents no error responses | Low | P3 | `apps/core/tests/test_openapi_contract.py` | 97e5968 | Fixed |
+| D-18 | HTTP Basic auth costs a 151 ms password hash per request, capping throughput at ~21 req/s | Medium | P2 | Locust: `docs/qa/load-test.md` | — | Open |
 
 ---
 
@@ -260,3 +263,37 @@ any release).
 - **Tests:** `test_role_defaults_to_member_when_omitted` (failing at
   5204a2d, together with the plan test that found it).
 - **Fix:** d6f066f.
+
+## D-16: Over-long email local part accepted
+- **Severity / priority:** Low / P3
+- **Found by:** boundary-value test on invitation emails.
+- **Steps to reproduce:** invite `"a" * 65 + "@example.com"`.
+- **Expected:** 400 (RFC 5321 limits the local part to 64 octets).
+- **Actual:** 201. Django's `EmailValidator` does not enforce that limit, so
+  the invitation could never be delivered.
+- **Tests:** `test_invitation_email_local_part_length[65-400]` (failing at b153aca).
+- **Fix:** 313d169.
+
+## D-17: OpenAPI schema missing error responses
+- **Severity / priority:** Low / P3
+- **Found by:** Schemathesis `status_code_conformance` (run 1: 181 of 419
+  checks failed; `docs/qa/schemathesis-run1-before-D17.txt`).
+- **Steps to reproduce:** `scripts/run_schemathesis.sh` against the
+  Milestone 2 schema.
+- **Expected:** every status the API returns is documented.
+- **Actual:** only success responses were documented, so 400/401/403/404/
+  409/429 were all "undocumented".
+- **Tests:** `apps/core/tests/test_openapi_contract.py` (failing at c049cdb).
+- **Fix:** 97e5968 (post-processing hook). Run 2 with the same seed: 1050/1050
+  on all 7 checks (`docs/qa/schemathesis-run2-after-D17.txt`).
+
+## D-18: Basic auth hashes the password on every request
+- **Severity / priority:** Medium / P2 (performance and cost)
+- **Found by:** Locust load test (`docs/qa/load-test.md`).
+- **Steps to reproduce:** run the locustfile against gunicorn (4 workers).
+- **Expected:** throughput bounded by the application and database.
+- **Actual:** ~21 req/s, minimum latency 166 ms, of which 151 ms is PBKDF2
+  `check_password` (720,000 iterations).
+- **Status:** Open. Fixing it needs a token or session login flow, which is a
+  product change outside this milestone; recorded as a known risk in the QA
+  report.
