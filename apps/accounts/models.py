@@ -43,3 +43,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def delete(self, *args, **kwargs):
+        from apps.tenants.signals import ensure_not_sole_owner
+
+        ensure_not_sole_owner(self)
+        return super().delete(*args, **kwargs)

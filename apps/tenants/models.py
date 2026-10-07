@@ -1,8 +1,13 @@
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 
 from apps.tenants.context import get_current_org
-from apps.tenants.exceptions import NoActiveTenantError, TenantMismatchError, UnscopedQueryError
+from apps.tenants.exceptions import (
+    LastOwnerError,
+    NoActiveTenantError,
+    TenantMismatchError,
+    UnscopedQueryError,
+)
 
 ORGANIZATION_FIELDS = frozenset({"organization", "organization_id"})
 
@@ -36,6 +41,38 @@ class Membership(models.Model):
 
     def __str__(self):
         return f"{self.user_id}@{self.organization_id} ({self.role})"
+
+    def _is_last_owner(self):
+        return not (
+            Membership.objects.filter(organization_id=self.organization_id, role=self.Role.OWNER)
+            .exclude(pk=self.pk)
+            .exists()
+        )
+
+    def _lock_organization(self):
+        # Serialise owner changes per org, so two owners demoting each other
+        # concurrently cannot both pass the last-owner check.
+        Organization.objects.select_for_update().filter(pk=self.organization_id).first()
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if not self._state.adding and self.role != self.Role.OWNER:
+                self._lock_organization()
+                stored_role = (
+                    Membership.objects.filter(pk=self.pk).values_list("role", flat=True).first()
+                )
+                if stored_role == self.Role.OWNER and self._is_last_owner():
+                    raise LastOwnerError("An organization must keep at least one owner.")
+            super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Cascades (deleting the organization) do not call Model.delete(), so
+        # this only guards removing a single membership.
+        with transaction.atomic():
+            self._lock_organization()
+            if self.role == self.Role.OWNER and self._is_last_owner():
+                raise LastOwnerError("An organization must keep at least one owner.")
+            return super().delete(*args, **kwargs)
 
 
 class TenantQuerySet(models.QuerySet):

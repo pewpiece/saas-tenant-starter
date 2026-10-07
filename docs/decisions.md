@@ -23,10 +23,12 @@ Ambiguous points, the simplest option chosen, and why.
   as-is behind Django's session login / HTTP basic auth, but no endpoints
   are built in this milestone.
 
-- **`created_by` on_delete=CASCADE.** Simplest default; deleting a user
-  deletes the projects they created. A real product would likely use
-  `PROTECT` or `SET_NULL` plus an ownership-transfer flow, but that's beyond
-  Milestone 1's scope.
+- **Deleting a user: their work stays, orgs never lose their last owner.**
+  `Project.created_by` is `SET_NULL`, so a project belongs to its org, not
+  to its creator. Deleting a user removes their memberships; it is refused
+  (`LastOwnerError`) if they are the only owner of any org. Transfer
+  ownership or delete the org first. *(Milestone 1 used CASCADE, which
+  deleted the user's projects in every org: D-07.)*
 
 - **Project list is unpaginated.** No `DEFAULT_PAGINATION_CLASS` is set, so
   `GET /api/projects/` returns a plain JSON array. Fine for a starter; a

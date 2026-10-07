@@ -18,3 +18,7 @@ class UnscopedQueryError(RuntimeError):
 
     Use `Model.all_tenants` and filter on organization explicitly instead.
     """
+
+
+class LastOwnerError(Exception):
+    """Raised when a change would leave an organization without an owner."""
