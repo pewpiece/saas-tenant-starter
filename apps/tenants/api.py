@@ -41,7 +41,9 @@ class InvitationViewSet(
         )
 
     def perform_create(self, serializer):
-        role = serializer.validated_data["role"]
+        # The model default is not copied into validated_data when the
+        # client omits "role", so apply it here.
+        role = serializer.validated_data.get("role", Membership.Role.MEMBER)
         if role == Membership.Role.OWNER and not has_role(self.request, Membership.Role.OWNER):
             raise PermissionDenied("Only an owner can invite another owner.")
         serializer.instance = send_invitation(
