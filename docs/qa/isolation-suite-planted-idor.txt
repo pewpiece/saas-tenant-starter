@@ -1,0 +1,15 @@
+Sanity check of the generated isolation suite (does it catch a real IDOR?)
+
+Planted defect: ProjectViewSet.get_queryset returned
+Project.all_tenants.select_related("organization") (unscoped) instead of
+Project.objects. Suite run against the planted defect:
+
+FAILED test_detail_route_hides_other_orgs_objects[DELETE api/projects/{pk}/]
+FAILED test_detail_route_hides_other_orgs_objects[GET api/projects/{pk}/]
+FAILED test_detail_route_hides_other_orgs_objects[PATCH api/projects/{pk}/]
+FAILED test_detail_route_hides_other_orgs_objects[PUT api/projects/{pk}/]
+FAILED test_collection_route_never_leaks_other_org[GET api/projects/]
+5 failed, 37 passed
+
+The planted change was reverted (no diff); the suite passes 42/42 on the
+real code.

@@ -1,0 +1,5 @@
+# Heavier QA tooling (Phase 3). Not needed to run the app or the unit tests.
+-r requirements.txt
+schemathesis>=3.36,<4
+locust>=2.31,<3
+mutmut>=3.2,<4
