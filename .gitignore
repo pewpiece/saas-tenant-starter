@@ -11,3 +11,5 @@ db.sqlite3
 htmlcov/
 mutants/
 .mutmut-cache
+.hypothesis/
+coverage.xml
