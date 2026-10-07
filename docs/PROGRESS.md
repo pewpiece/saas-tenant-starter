@@ -72,14 +72,16 @@ Result at end of phase: 213 tests pass, ruff clean, schema valid with
 
 - 456 tests pass, 0 warnings, ruff clean, schema valid with `--fail-on-warn`.
 - 20 defects logged: 18 fixed, 2 open (D-18 Medium, D-20 Low).
+- Pushed to https://github.com/pewpiece/saas-tenant-starter (private);
+  PR #1 into `master`. CI passed on GitHub (lint, tests with coverage gate,
+  schema).
 
 ## Next (if work continues)
 
 1. D-18: add token or session login so clients stop sending the password
    on every request.
 2. D-20: add CSP / Permissions-Policy headers for the admin and Swagger UI.
-3. Push the branch to GitHub and confirm the CI workflow runs green there.
-4. Consider PostgreSQL row-level security as a second isolation layer.
+3. Consider PostgreSQL row-level security as a second isolation layer.
 
 ## Open issues
 

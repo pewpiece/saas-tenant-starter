@@ -190,6 +190,8 @@ exist.
      by the unit suites, not by fuzzing.
    - The load test ran on one laptop with Locust on the same machine.
    - ZAP scanned over plain HTTP.
-9. **CI not yet executed on GitHub.** The workflow
-   (`.github/workflows/ci.yml`) was validated by running each step locally
-   with CI-equivalent settings; the repository has no remote yet.
+9. **CI runs on GitHub** (run 37648716663 on PR #1: lint, test with the
+   90% coverage gate, and schema all passed). The workflow still uses
+   `actions/checkout@v4` and `actions/setup-python@v5`, which GitHub flags
+   as targeting the deprecated Node.js 20; bump them when newer majors are
+   available.
