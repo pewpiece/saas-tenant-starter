@@ -37,7 +37,30 @@ python manage.py runserver
 
 ```bash
 docker compose up -d
-pytest
+pytest                              # 456 tests
+pytest --cov --cov-fail-under=90    # with branch coverage (CI gate)
+```
+
+## QA
+
+The full QA cycle (strategy, traceability, defect log, reports) is in
+[`docs/`](docs/):
+
+- [docs/qa-report.md](docs/qa-report.md): results, defects, remaining risks
+- [docs/test-strategy.md](docs/test-strategy.md) and
+  [docs/traceability-matrix.md](docs/traceability-matrix.md)
+- [docs/defect-log.md](docs/defect-log.md)
+
+Heavier tools live in `requirements-qa.txt`:
+
+```bash
+pip install -r requirements-qa.txt
+docker compose exec -T db createdb -U saas_starter saas_qa
+POSTGRES_DB=saas_qa python manage.py migrate
+POSTGRES_DB=saas_qa python manage.py seed_qa --tenants 50 --projects 5
+scripts/run_schemathesis.sh                     # API fuzzing (see script header)
+locust -f loadtest/locustfile.py --host ...     # load test (see file header)
+mutmut run --max-children 4                     # mutation testing of apps/tenants
 ```
 
 ## System code and the admin

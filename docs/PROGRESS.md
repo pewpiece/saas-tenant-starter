@@ -45,17 +45,49 @@ Result at end of phase: 100 tests pass, ruff clean.
 Result at end of phase: 213 tests pass, ruff clean, schema valid with
 `--fail-on-warn`.
 
-## Next
+## Phase 3: QA cycle (done)
 
-Phase 3: QA cycle (test strategy, traceability, isolation and authorization
-suites, boundary tests, Schemathesis, Locust, coverage, mutmut, CI).
+- [test-strategy.md](test-strategy.md), [traceability-matrix.md](traceability-matrix.md).
+- Generated tenant isolation (IDOR) suite over every discovered route and
+  method (42 cases; a planted IDOR is caught by 5).
+- Generated authorization matrix: 5 roles x 19 actions, 95 cells, table in
+  [qa/authorization-matrix.md](qa/authorization-matrix.md).
+- Boundary, error-guessing and mass-assignment suites.
+- Schemathesis: found D-17; final run 1,050/1,050 on all 7 checks.
+- Locust: 100 users / 50 tenants, 0 failures, 0 cross-tenant rows; found
+  D-18 (open).
+- Coverage 97.85% (branch); mutmut on `apps/tenants` 64.2% -> 78.8%;
+  found D-19.
+- GitHub Actions workflow (lint, migrations check, tests with a 90%
+  coverage gate, OpenAPI validity and drift).
+- OWASP ZAP baseline and authenticated API scans (Docker available): found
+  D-20 (open); the SQL injection alert was shown to be a false positive.
+- Other defects found in this phase: D-16.
+
+## Phase 4: Final report (done)
+
+[qa-report.md](qa-report.md).
+
+## State at the end
+
+- 456 tests pass, 0 warnings, ruff clean, schema valid with `--fail-on-warn`.
+- 20 defects logged: 18 fixed, 2 open (D-18 Medium, D-20 Low).
+
+## Next (if work continues)
+
+1. D-18: add token or session login so clients stop sending the password
+   on every request.
+2. D-20: add CSP / Permissions-Policy headers for the admin and Swagger UI.
+3. Push the branch to GitHub and confirm the CI workflow runs green there.
+4. Consider PostgreSQL row-level security as a second isolation layer.
 
 ## Open issues
 
 - Throttle and lockout counters use LocMemCache (per process). A
   multi-worker deployment needs a shared cache.
-- Last-owner protection is enforced by `Membership.save()/delete()` and a
-  user `pre_delete` signal; `Membership.objects.filter(...).delete()` and
-  `.update(role=...)` bypass it (no API path uses them).
+- Last-owner protection is model-level; `Membership` queryset
+  `.delete()`/`.update()` bypass it (no API path uses them).
 - Audit log immutability is ORM-level only (no database trigger).
 - Signup reveals whether an email is registered.
+- Schemathesis ran stateless: success paths of id-based operations are
+  covered by unit tests, not fuzzing.
