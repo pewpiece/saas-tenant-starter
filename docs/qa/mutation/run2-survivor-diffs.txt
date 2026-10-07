@@ -1,0 +1,139 @@
+admin.xǁTenantOwnedAdminFormǁ__init____mutmut_2 :: -    super().__init__(*args, **kwargs) +    super().__init__(*args, ) 
+admin.xǁTenantOwnedAdminFormǁ__init____mutmut_3 :: -        self.fields["organization"].initial = self.instance.organization_id +        self.fields["organization"].initial = None 
+admin.xǁTenantOwnedAdminFormǁ__init____mutmut_6 :: -        self.fields["organization"].disabled = True +        self.fields["organization"].disabled = None 
+admin.xǁTenantOwnedAdminFormǁ__init____mutmut_9 :: -        self.fields["organization"].disabled = True +        self.fields["organization"].disabled = False 
+admin.xǁTenantOwnedAdminFormǁsave__mutmut_1 :: -def save(self, commit=True): +def save(self, commit=False): 
+admin.xǁTenantOwnedAdminFormǁsave__mutmut_6 :: -    return super().save(commit) +    return super().save(None) 
+admin.xǁTenantOwnedAdminǁget_queryset__mutmut_2 :: -    ordering = self.get_ordering(request) +    ordering = None 
+admin.xǁTenantOwnedAdminǁget_queryset__mutmut_3 :: -    ordering = self.get_ordering(request) +    ordering = self.get_ordering(None) 
+admin.xǁTenantOwnedAdminǁget_queryset__mutmut_4 :: -        queryset = queryset.order_by(*ordering) +        queryset = None 
+admin.xǁTenantOwnedAdminǁget_form__mutmut_4 :: -        kwargs["fields"] = [f for f in kwargs["fields"] if f != "organization"] +        kwargs["fields"] = None 
+admin.xǁTenantOwnedAdminǁget_form__mutmut_13 :: -    return super().get_form(request, obj, **kwargs) +    return super().get_form(request, None, **kwargs) 
+admin.xǁTenantOwnedAdminǁget_form__mutmut_15 :: -    return super().get_form(request, obj, **kwargs) +    return super().get_form(request, **kwargs) 
+admin.xǁTenantOwnedAdminǁget_fields__mutmut_3 :: -    fields = super().get_fields(request, obj) +    fields = super().get_fields(request, None) 
+admin.xǁTenantOwnedAdminǁget_fields__mutmut_5 :: -    fields = super().get_fields(request, obj) +    fields = super().get_fields(request, ) 
+admin.xǁTenantOwnedAdminǁget_fields__mutmut_9 :: -    return ["organization", *[f for f in fields if f != "organization"]] +    return ["organization", *[f for f in fields if f != "XXorganizationXX"]] 
+admin.xǁTenantOwnedAdminǁget_fields__mutmut_10 :: -    return ["organization", *[f for f in fields if f != "organization"]] +    return ["organization", *[f for f in fields if f != "ORGANIZATION"]] 
+models.xǁMembershipǁsave__mutmut_15 :: -                raise LastOwnerError("An organization must keep at least one owner.") +                raise LastOwnerError(None) 
+models.xǁMembershipǁsave__mutmut_16 :: -                raise LastOwnerError("An organization must keep at least one owner.") +                raise LastOwnerError("XXAn organization must keep at least one owner.XX") 
+models.xǁMembershipǁsave__mutmut_17 :: -                raise LastOwnerError("An organization must keep at least one owner.") +                raise LastOwnerError("an organization must keep at least one owner.") 
+models.xǁMembershipǁsave__mutmut_18 :: -                raise LastOwnerError("An organization must keep at least one owner.") +                raise LastOwnerError("AN ORGANIZATION MUST KEEP AT LEAST ONE OWNER.") 
+models.xǁMembershipǁsave__mutmut_19 :: -        super().save(*args, **kwargs) +        super().save(**kwargs) 
+models.xǁMembershipǁsave__mutmut_20 :: -        super().save(*args, **kwargs) +        super().save(*args, ) 
+models.xǁMembershipǁdelete__mutmut_12 :: -            raise LastOwnerError("An organization must keep at least one owner.") +            raise LastOwnerError(None) 
+models.xǁMembershipǁdelete__mutmut_13 :: -            raise LastOwnerError("An organization must keep at least one owner.") +            raise LastOwnerError("XXAn organization must keep at least one owner.XX") 
+models.xǁMembershipǁdelete__mutmut_14 :: -            raise LastOwnerError("An organization must keep at least one owner.") +            raise LastOwnerError("an organization must keep at least one owner.") 
+models.xǁMembershipǁdelete__mutmut_15 :: -            raise LastOwnerError("An organization must keep at least one owner.") +            raise LastOwnerError("AN ORGANIZATION MUST KEEP AT LEAST ONE OWNER.") 
+models.xǁMembershipǁdelete__mutmut_16 :: -        return super().delete(*args, **kwargs) +        return super().delete(**kwargs) 
+models.xǁMembershipǁdelete__mutmut_17 :: -        return super().delete(*args, **kwargs) +        return super().delete(*args, ) 
+models.xǁTenantQuerySetǁupdate__mutmut_2 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError(None) 
+models.xǁTenantQuerySetǁupdate__mutmut_3 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError("XXA row's organization cannot be changed.XX") 
+models.xǁTenantQuerySetǁupdate__mutmut_4 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError("a row's organization cannot be changed.") 
+models.xǁTenantQuerySetǁupdate__mutmut_5 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError("A ROW'S ORGANIZATION CANNOT BE CHANGED.") 
+models.xǁTenantQuerySetǁbulk_create__mutmut_4 :: -    org = _require_active_org(self.model) +    org = _require_active_org(None) 
+models.xǁTenantQuerySetǁbulk_create__mutmut_8 :: -    return super().bulk_create(objs, *args, **kwargs) +    return super().bulk_create(objs, **kwargs) 
+models.xǁTenantQuerySetǁbulk_create__mutmut_9 :: -    return super().bulk_create(objs, *args, **kwargs) +    return super().bulk_create(objs, *args, ) 
+models.xǁTenantQuerySetǁbulk_update__mutmut_3 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError(None) 
+models.xǁTenantQuerySetǁbulk_update__mutmut_4 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError("XXA row's organization cannot be changed.XX") 
+models.xǁTenantQuerySetǁbulk_update__mutmut_5 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError("a row's organization cannot be changed.") 
+models.xǁTenantQuerySetǁbulk_update__mutmut_6 :: -        raise TenantMismatchError("A row's organization cannot be changed.") +        raise TenantMismatchError("A ROW'S ORGANIZATION CANNOT BE CHANGED.") 
+models.xǁTenantQuerySetǁbulk_update__mutmut_10 :: -    org = _require_active_org(self.model) +    org = _require_active_org(None) 
+models.xǁTenantQuerySetǁbulk_update__mutmut_12 :: -            raise TenantMismatchError(_mismatch_message(obj, org)) +            raise TenantMismatchError(None) 
+models.xǁTenantQuerySetǁbulk_update__mutmut_21 :: -    return super().bulk_update(objs, fields, *args, **kwargs) +    return super().bulk_update(objs, fields, **kwargs) 
+models.xǁTenantQuerySetǁbulk_update__mutmut_22 :: -    return super().bulk_update(objs, fields, *args, **kwargs) +    return super().bulk_update(objs, fields, *args, ) 
+models.xǁTenantQuerySetǁraw__mutmut_1 :: -        f"{self.model.__name__}.objects.raw() cannot be tenant-scoped. Use " -        f"{self.model.__name__}.all_tenants.raw() and filter on organization_id." +        None 
+models.x__require_active_org__mutmut_3 :: -            f"{model.__name__}.objects was queried with no active tenant. Use " -            "tenant_context(org) (done for you by TenantScopedViewMixin), or use " -            f"{model.__name__}.all_tenants for admin/system access." +            None 
+models.x__require_active_org__mutmut_4 :: -            "tenant_context(org) (done for you by TenantScopedViewMixin), or use " +            "XXtenant_context(org) (done for you by TenantScopedViewMixin), or use XX" 
+models.x__require_active_org__mutmut_5 :: -            "tenant_context(org) (done for you by TenantScopedViewMixin), or use " +            "tenant_context(org) (done for you by tenantscopedviewmixin), or use " 
+models.x__require_active_org__mutmut_6 :: -            "tenant_context(org) (done for you by TenantScopedViewMixin), or use " +            "TENANT_CONTEXT(ORG) (DONE FOR YOU BY TENANTSCOPEDVIEWMIXIN), OR USE " 
+models.x__mismatch_message__mutmut_1 :: -        f"{type(obj).__name__} belongs to organization {obj.organization_id}, " +        f"{type(None).__name__} belongs to organization {obj.organization_id}, " 
+models.xǁTenantOwnedModelǁfrom_db__mutmut_2 :: -    instance = super().from_db(db, field_names, values) +    instance = super().from_db(None, field_names, values) 
+models.xǁTenantOwnedModelǁfrom_db__mutmut_3 :: -    instance = super().from_db(db, field_names, values) +    instance = super().from_db(db, None, values) 
+models.xǁTenantOwnedModelǁsave__mutmut_5 :: -                f"Cannot create a {type(self).__name__} with no active " -                "tenant and no explicit organization set." +                None 
+models.xǁTenantOwnedModelǁsave__mutmut_6 :: -                f"Cannot create a {type(self).__name__} with no active " +                f"Cannot create a {type(None).__name__} with no active " 
+models.xǁTenantOwnedModelǁsave__mutmut_7 :: -                "tenant and no explicit organization set." +                "XXtenant and no explicit organization set.XX" 
+models.xǁTenantOwnedModelǁsave__mutmut_8 :: -                "tenant and no explicit organization set." +                "TENANT AND NO EXPLICIT ORGANIZATION SET." 
+models.xǁTenantOwnedModelǁsave__mutmut_19 :: -            raise TenantMismatchError("A row's organization cannot be changed.") +            raise TenantMismatchError(None) 
+models.xǁTenantOwnedModelǁsave__mutmut_20 :: -            raise TenantMismatchError("A row's organization cannot be changed.") +            raise TenantMismatchError("XXA row's organization cannot be changed.XX") 
+models.xǁTenantOwnedModelǁsave__mutmut_21 :: -            raise TenantMismatchError("A row's organization cannot be changed.") +            raise TenantMismatchError("a row's organization cannot be changed.") 
+models.xǁTenantOwnedModelǁsave__mutmut_22 :: -            raise TenantMismatchError("A row's organization cannot be changed.") +            raise TenantMismatchError("A ROW'S ORGANIZATION CANNOT BE CHANGED.") 
+models.xǁTenantOwnedModelǁsave__mutmut_26 :: -            raise TenantMismatchError(_mismatch_message(self, org)) +            raise TenantMismatchError(None) 
+models.xǁTenantOwnedModelǁsave__mutmut_31 :: -    super().save(*args, **kwargs) +    super().save(**kwargs) 
+models.xǁTenantOwnedModelǁsave__mutmut_32 :: -    super().save(*args, **kwargs) +    super().save(*args, ) 
+models.xǁTenantOwnedModelǁdelete__mutmut_5 :: -        raise TenantMismatchError(_mismatch_message(self, org)) +        raise TenantMismatchError(None) 
+models.xǁTenantOwnedModelǁdelete__mutmut_10 :: -    return super().delete(*args, **kwargs) +    return super().delete(**kwargs) 
+models.xǁTenantOwnedModelǁdelete__mutmut_11 :: -    return super().delete(*args, **kwargs) +    return super().delete(*args, ) 
+models.xǁInvitationǁissue__mutmut_2 :: -    raw_token = secrets.token_urlsafe(32) +    raw_token = secrets.token_urlsafe(None) 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_5 :: -        raise serializers.ValidationError("The part before @ can be at most 64 characters.") +        raise serializers.ValidationError(None) 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_6 :: -        raise serializers.ValidationError("The part before @ can be at most 64 characters.") +        raise serializers.ValidationError("XXThe part before @ can be at most 64 characters.XX") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_7 :: -        raise serializers.ValidationError("The part before @ can be at most 64 characters.") +        raise serializers.ValidationError("the part before @ can be at most 64 characters.") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_8 :: -        raise serializers.ValidationError("The part before @ can be at most 64 characters.") +        raise serializers.ValidationError("THE PART BEFORE @ CAN BE AT MOST 64 CHARACTERS.") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_16 :: -        raise serializers.ValidationError("This person is already a member.") +        raise serializers.ValidationError(None) 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_17 :: -        raise serializers.ValidationError("This person is already a member.") +        raise serializers.ValidationError("XXThis person is already a member.XX") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_18 :: -        raise serializers.ValidationError("This person is already a member.") +        raise serializers.ValidationError("this person is already a member.") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_19 :: -        raise serializers.ValidationError("This person is already a member.") +        raise serializers.ValidationError("THIS PERSON IS ALREADY A MEMBER.") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_21 :: -        raise serializers.ValidationError("This email already has a pending invitation.") +        raise serializers.ValidationError(None) 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_22 :: -        raise serializers.ValidationError("This email already has a pending invitation.") +        raise serializers.ValidationError("XXThis email already has a pending invitation.XX") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_23 :: -        raise serializers.ValidationError("This email already has a pending invitation.") +        raise serializers.ValidationError("this email already has a pending invitation.") 
+serializers.xǁInvitationSerializerǁvalidate_email__mutmut_24 :: -        raise serializers.ValidationError("This email already has a pending invitation.") +        raise serializers.ValidationError("THIS EMAIL ALREADY HAS A PENDING INVITATION.") 
+permissions.x_has_role__mutmut_6 :: -    membership = getattr(request, "membership", None) +    membership = getattr(request, "membership", ) 
+invitations.x_send_invitation__mutmut_13 :: -        email=email, accepted_at__isnull=True, revoked_at__isnull=True, expires_at__lte=timezone.now() +        email=email, revoked_at__isnull=True, expires_at__lte=timezone.now() 
+invitations.x_send_invitation__mutmut_14 :: -        email=email, accepted_at__isnull=True, revoked_at__isnull=True, expires_at__lte=timezone.now() +        email=email, accepted_at__isnull=True, expires_at__lte=timezone.now() 
+invitations.x_send_invitation__mutmut_15 :: -        email=email, accepted_at__isnull=True, revoked_at__isnull=True, expires_at__lte=timezone.now() -    ).update(revoked_at=timezone.now()) +        email=email, accepted_at__isnull=True, revoked_at__isnull=True, ).update(revoked_at=timezone.now()) 
+invitations.x_send_invitation__mutmut_45 :: -            from_email=settings.DEFAULT_FROM_EMAIL, +            from_email=None, 
+invitations.x_accept_invitation__mutmut_1 :: -def accept_invitation(*, raw_token, request_user, password=None, first_name="", last_name=""): +def accept_invitation(*, raw_token, request_user, password=None, first_name="XXXX", last_name=""): 
+invitations.x_accept_invitation__mutmut_2 :: -def accept_invitation(*, raw_token, request_user, password=None, first_name="", last_name=""): +def accept_invitation(*, raw_token, request_user, password=None, first_name="", last_name="XXXX"): 
+invitations.x_accept_invitation__mutmut_5 :: -        .select_related("organization") +        .select_related(None) 
+invitations.x_accept_invitation__mutmut_19 :: -                raise PermissionDenied("This invitation was sent to a different email address.") +                raise PermissionDenied(None) 
+invitations.x_accept_invitation__mutmut_20 :: -                raise PermissionDenied("This invitation was sent to a different email address.") +                raise PermissionDenied("XXThis invitation was sent to a different email address.XX") 
+invitations.x_accept_invitation__mutmut_21 :: -                raise PermissionDenied("This invitation was sent to a different email address.") +                raise PermissionDenied("this invitation was sent to a different email address.") 
+invitations.x_accept_invitation__mutmut_22 :: -                raise PermissionDenied("This invitation was sent to a different email address.") +                raise PermissionDenied("THIS INVITATION WAS SENT TO A DIFFERENT EMAIL ADDRESS.") 
+invitations.x_accept_invitation__mutmut_25 :: -                    "An account with this email already exists. Authenticate to accept." +                    None 
+invitations.x_accept_invitation__mutmut_26 :: -                    "An account with this email already exists. Authenticate to accept." +                    "XXAn account with this email already exists. Authenticate to accept.XX" 
+invitations.x_accept_invitation__mutmut_27 :: -                    "An account with this email already exists. Authenticate to accept." +                    "an account with this email already exists. authenticate to accept." 
+invitations.x_accept_invitation__mutmut_28 :: -                    "An account with this email already exists. Authenticate to accept." +                    "AN ACCOUNT WITH THIS EMAIL ALREADY EXISTS. AUTHENTICATE TO ACCEPT." 
+invitations.x_accept_invitation__mutmut_45 :: -            raise ValidationError({"token": "You are already a member of this organization."}) +            raise ValidationError({"token": "XXYou are already a member of this organization.XX"}) 
+invitations.x_accept_invitation__mutmut_46 :: -            raise ValidationError({"token": "You are already a member of this organization."}) +            raise ValidationError({"token": "you are already a member of this organization."}) 
+invitations.x_accept_invitation__mutmut_47 :: -            raise ValidationError({"token": "You are already a member of this organization."}) +            raise ValidationError({"token": "YOU ARE ALREADY A MEMBER OF THIS ORGANIZATION."}) 
+invitations.x_accept_invitation__mutmut_50 :: -        ensure_can_add_member(org, count_pending_invitations=False) +        ensure_can_add_member(org, count_pending_invitations=None) 
+invitations.x_accept_invitation__mutmut_63 :: -        invitation.save(update_fields=["accepted_at", "accepted_by"]) +        invitation.save(update_fields=None) 
+invitations.x__create_invited_user__mutmut_5 :: -        raise ValidationError({"password": "A password is required to create your account."}) +        raise ValidationError({"password": "XXA password is required to create your account.XX"}) 
+invitations.x__create_invited_user__mutmut_6 :: -        raise ValidationError({"password": "A password is required to create your account."}) +        raise ValidationError({"password": "a password is required to create your account."}) 
+invitations.x__create_invited_user__mutmut_7 :: -        raise ValidationError({"password": "A password is required to create your account."}) +        raise ValidationError({"password": "A PASSWORD IS REQUIRED TO CREATE YOUR ACCOUNT."}) 
+invitations.x_revoke_invitation__mutmut_5 :: -        raise ValidationError({"detail": "An accepted invitation cannot be revoked."}) +        raise ValidationError({"detail": "XXAn accepted invitation cannot be revoked.XX"}) 
+invitations.x_revoke_invitation__mutmut_6 :: -        raise ValidationError({"detail": "An accepted invitation cannot be revoked."}) +        raise ValidationError({"detail": "an accepted invitation cannot be revoked."}) 
+invitations.x_revoke_invitation__mutmut_7 :: -        raise ValidationError({"detail": "An accepted invitation cannot be revoked."}) +        raise ValidationError({"detail": "AN ACCEPTED INVITATION CANNOT BE REVOKED."}) 
+invitations.x_revoke_invitation__mutmut_10 :: -        invitation.save(update_fields=["revoked_at"]) +        invitation.save(update_fields=None) 
+views.xǁTenantScopedViewMixinǁtenant_queryset__mutmut_3 :: -    if getattr(self, "swagger_fake_view", False): +    if getattr(self, "swagger_fake_view", None): 
+views.xǁTenantScopedViewMixinǁdispatch__mutmut_3 :: -        return super().dispatch(request, *args, **kwargs) +        return super().dispatch(request, **kwargs) 
+views.xǁTenantScopedViewMixinǁdispatch__mutmut_7 :: -            self._tenant_token = None +            self._tenant_token = "" 
+api.xǁInvitationViewSetǁget_queryset__mutmut_6 :: -        lambda: Invitation.objects.select_related("invited_by"), Invitation.all_tenants.none() +        lambda: Invitation.objects.select_related(None), Invitation.all_tenants.none() 
+api.xǁInvitationViewSetǁperform_create__mutmut_15 :: -        raise PermissionDenied("Only an owner can invite another owner.") +        raise PermissionDenied(None) 
+api.xǁInvitationViewSetǁperform_create__mutmut_16 :: -        raise PermissionDenied("Only an owner can invite another owner.") +        raise PermissionDenied("XXOnly an owner can invite another owner.XX") 
+api.xǁInvitationViewSetǁperform_create__mutmut_17 :: -        raise PermissionDenied("Only an owner can invite another owner.") +        raise PermissionDenied("only an owner can invite another owner.") 
+api.xǁInvitationViewSetǁperform_create__mutmut_18 :: -        raise PermissionDenied("Only an owner can invite another owner.") +        raise PermissionDenied("ONLY AN OWNER CAN INVITE ANOTHER OWNER.") 
+api.xǁMemberViewSetǁget_queryset__mutmut_8 :: -        .order_by("created_at", "id"), +        .order_by("id"), 
+api.xǁMemberViewSetǁget_queryset__mutmut_9 :: -        .order_by("created_at", "id"), +        .order_by("created_at", ), 
+api.xǁMemberViewSetǁget_queryset__mutmut_10 :: -        .select_related("user") +        .select_related(None) 
+api.xǁMemberViewSetǁperform_update__mutmut_6 :: -        raise PermissionDenied("Only an owner can change roles.") +        raise PermissionDenied(None) 
+api.xǁMemberViewSetǁperform_update__mutmut_7 :: -        raise PermissionDenied("Only an owner can change roles.") +        raise PermissionDenied("XXOnly an owner can change roles.XX") 
+api.xǁMemberViewSetǁperform_update__mutmut_8 :: -        raise PermissionDenied("Only an owner can change roles.") +        raise PermissionDenied("only an owner can change roles.") 
+api.xǁMemberViewSetǁperform_update__mutmut_9 :: -        raise PermissionDenied("Only an owner can change roles.") +        raise PermissionDenied("ONLY AN OWNER CAN CHANGE ROLES.") 
+api.xǁMemberViewSetǁperform_destroy__mutmut_17 :: -        raise PermissionDenied("You cannot remove this member.") +        raise PermissionDenied(None) 
+api.xǁMemberViewSetǁperform_destroy__mutmut_18 :: -        raise PermissionDenied("You cannot remove this member.") +        raise PermissionDenied("XXYou cannot remove this member.XX") 
+api.xǁMemberViewSetǁperform_destroy__mutmut_19 :: -        raise PermissionDenied("You cannot remove this member.") +        raise PermissionDenied("you cannot remove this member.") 
+api.xǁMemberViewSetǁperform_destroy__mutmut_20 :: -        raise PermissionDenied("You cannot remove this member.") +        raise PermissionDenied("YOU CANNOT REMOVE THIS MEMBER.") 
+signals.x_ensure_not_sole_owner__mutmut_5 :: -    owned = Membership.objects.filter(user=user, role=Membership.Role.OWNER) +    owned = Membership.objects.filter(user=user, ) 
+signals.x_ensure_not_sole_owner__mutmut_6 :: -    for membership in owned.select_related("organization"): +    for membership in owned.select_related(None): 
+signals.x_ensure_not_sole_owner__mutmut_9 :: -                f"{user} is the only owner of {membership.organization}; " -                "transfer ownership or delete the organization first." +                None 
+signals.x_ensure_not_sole_owner__mutmut_10 :: -                "transfer ownership or delete the organization first." +                "XXtransfer ownership or delete the organization first.XX" 
+signals.x_ensure_not_sole_owner__mutmut_11 :: -                "transfer ownership or delete the organization first." +                "TRANSFER OWNERSHIP OR DELETE THE ORGANIZATION FIRST." 
+management.commands.dumpdata.xǁCommandǁadd_arguments__mutmut_3 :: -        help="Only dump tenant-owned rows of the organization with this slug.", +        help=None, 
+management.commands.dumpdata.xǁCommandǁadd_arguments__mutmut_5 :: -        help="Only dump tenant-owned rows of the organization with this slug.", -    ) +        ) 
+management.commands.dumpdata.xǁCommandǁadd_arguments__mutmut_8 :: -        help="Only dump tenant-owned rows of the organization with this slug.", +        help="XXOnly dump tenant-owned rows of the organization with this slug.XX", 
+management.commands.dumpdata.xǁCommandǁadd_arguments__mutmut_9 :: -        help="Only dump tenant-owned rows of the organization with this slug.", +        help="only dump tenant-owned rows of the organization with this slug.", 
+management.commands.dumpdata.xǁCommandǁadd_arguments__mutmut_10 :: -        help="Only dump tenant-owned rows of the organization with this slug.", +        help="ONLY DUMP TENANT-OWNED ROWS OF THE ORGANIZATION WITH THIS SLUG.", 
+management.commands.dumpdata.xǁCommandǁhandle__mutmut_4 :: -    slug = options.pop("org", None) +    slug = options.pop("org", ) 
+management.commands.dumpdata.xǁCommandǁhandle__mutmut_17 :: -    options["use_base_manager"] = False +    options["use_base_manager"] = None 
+management.commands.dumpdata.xǁCommandǁhandle__mutmut_18 :: -    options["use_base_manager"] = False +    options["XXuse_base_managerXX"] = False 
+management.commands.dumpdata.xǁCommandǁhandle__mutmut_19 :: -    options["use_base_manager"] = False +    options["USE_BASE_MANAGER"] = False 
