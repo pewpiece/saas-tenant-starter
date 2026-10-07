@@ -1,0 +1,1259 @@
+openapi: 3.0.3
+info:
+  title: SaaS Tenant Starter API
+  version: 2.0.0
+  description: 'Multi-tenant API. Tenant-scoped endpoints need authentication plus
+    an `X-Org: <organization-slug>` header.'
+paths:
+  /api/audit-log/:
+    get:
+      operationId: audit_log_list
+      description: |-
+        The active organization's audit log, newest first (admins and owners).
+
+        Filter with `?action=project.update`.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - audit-log
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogEntryList'
+          description: ''
+  /api/auth/signup/:
+    post:
+      operationId: auth_signup_create
+      description: Create a user plus their first organization, with them as owner.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponse'
+          description: ''
+  /api/invitations/:
+    get:
+      operationId: invitations_list
+      description: |-
+        Invitations to the active organization (admins and owners).
+
+        Only owners can invite someone as owner. DELETE revokes the invitation.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - invitations
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvitationList'
+          description: ''
+    post:
+      operationId: invitations_create
+      description: |-
+        Invitations to the active organization (admins and owners).
+
+        Only owners can invite someone as owner. DELETE revokes the invitation.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      tags:
+      - invitations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvitationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvitationRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invitation'
+          description: ''
+  /api/invitations/{id}/:
+    get:
+      operationId: invitations_retrieve
+      description: |-
+        Invitations to the active organization (admins and owners).
+
+        Only owners can invite someone as owner. DELETE revokes the invitation.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this invitation.
+        required: true
+      tags:
+      - invitations
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invitation'
+          description: ''
+    delete:
+      operationId: invitations_destroy
+      description: |-
+        Invitations to the active organization (admins and owners).
+
+        Only owners can invite someone as owner. DELETE revokes the invitation.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this invitation.
+        required: true
+      tags:
+      - invitations
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/invitations/accept/:
+    post:
+      operationId: invitations_accept_create
+      description: |-
+        Accept an invitation with the token from the email.
+
+        New users send a password to create their account; existing users
+        authenticate (Basic or session) and send only the token.
+      tags:
+      - invitations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptInvitationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AcceptInvitationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AcceptInvitationRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptInvitationResponse'
+          description: ''
+  /api/me/:
+    get:
+      operationId: me_retrieve
+      description: |-
+        The current user and every organization they belong to.
+
+        Clients switch between organizations by sending a different X-Org
+        header; this lists the valid values.
+      tags:
+      - me
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+  /api/members/:
+    get:
+      operationId: members_list
+      description: |-
+        Members of the active organization.
+
+        - Everyone can list members.
+        - Only owners change roles (PATCH {"role": ...}).
+        - Owners remove anyone; admins remove plain members; anyone can leave
+          (DELETE their own membership).
+        - The last owner can be neither demoted nor removed (409).
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - members
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMemberList'
+          description: ''
+  /api/members/{id}/:
+    get:
+      operationId: members_retrieve
+      description: |-
+        Members of the active organization.
+
+        - Everyone can list members.
+        - Only owners change roles (PATCH {"role": ...}).
+        - Owners remove anyone; admins remove plain members; anyone can leave
+          (DELETE their own membership).
+        - The last owner can be neither demoted nor removed (409).
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this membership.
+        required: true
+      tags:
+      - members
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+          description: ''
+    patch:
+      operationId: members_partial_update
+      description: |-
+        Members of the active organization.
+
+        - Everyone can list members.
+        - Only owners change roles (PATCH {"role": ...}).
+        - Owners remove anyone; admins remove plain members; anyone can leave
+          (DELETE their own membership).
+        - The last owner can be neither demoted nor removed (409).
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this membership.
+        required: true
+      tags:
+      - members
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMemberRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMemberRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMemberRequest'
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+          description: ''
+    delete:
+      operationId: members_destroy
+      description: |-
+        Members of the active organization.
+
+        - Everyone can list members.
+        - Only owners change roles (PATCH {"role": ...}).
+        - Owners remove anyone; admins remove plain members; anyone can leave
+          (DELETE their own membership).
+        - The last owner can be neither demoted nor removed (409).
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this membership.
+        required: true
+      tags:
+      - members
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/projects/:
+    get:
+      operationId: projects_list
+      description: |-
+        Resolves the active organization for a DRF view from the X-Org header.
+
+        Every tenant-scoped view must use this mixin. It runs after DRF
+        authentication and before the view's permission classes, so it sees the
+        real user whatever the auth method (Basic, session, ...):
+
+          - unauthenticated              -> 401 with a WWW-Authenticate challenge
+          - missing X-Org header         -> 400
+          - unknown slug or non-member   -> 403, byte-identical in both cases
+
+        On success it sets `request.tenant` and `request.membership` and
+        activates the tenant context for the rest of the request, resetting it
+        when the request finishes, even if the view raised.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - projects
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectList'
+          description: ''
+    post:
+      operationId: projects_create
+      description: |-
+        Resolves the active organization for a DRF view from the X-Org header.
+
+        Every tenant-scoped view must use this mixin. It runs after DRF
+        authentication and before the view's permission classes, so it sees the
+        real user whatever the auth method (Basic, session, ...):
+
+          - unauthenticated              -> 401 with a WWW-Authenticate challenge
+          - missing X-Org header         -> 400
+          - unknown slug or non-member   -> 403, byte-identical in both cases
+
+        On success it sets `request.tenant` and `request.membership` and
+        activates the tenant context for the rest of the request, resetting it
+        when the request finishes, even if the view raised.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      tags:
+      - projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /api/projects/{id}/:
+    get:
+      operationId: projects_retrieve
+      description: |-
+        Resolves the active organization for a DRF view from the X-Org header.
+
+        Every tenant-scoped view must use this mixin. It runs after DRF
+        authentication and before the view's permission classes, so it sees the
+        real user whatever the auth method (Basic, session, ...):
+
+          - unauthenticated              -> 401 with a WWW-Authenticate challenge
+          - missing X-Org header         -> 400
+          - unknown slug or non-member   -> 403, byte-identical in both cases
+
+        On success it sets `request.tenant` and `request.membership` and
+        activates the tenant context for the rest of the request, resetting it
+        when the request finishes, even if the view raised.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this project.
+        required: true
+      tags:
+      - projects
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    put:
+      operationId: projects_update
+      description: |-
+        Resolves the active organization for a DRF view from the X-Org header.
+
+        Every tenant-scoped view must use this mixin. It runs after DRF
+        authentication and before the view's permission classes, so it sees the
+        real user whatever the auth method (Basic, session, ...):
+
+          - unauthenticated              -> 401 with a WWW-Authenticate challenge
+          - missing X-Org header         -> 400
+          - unknown slug or non-member   -> 403, byte-identical in both cases
+
+        On success it sets `request.tenant` and `request.membership` and
+        activates the tenant context for the rest of the request, resetting it
+        when the request finishes, even if the view raised.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this project.
+        required: true
+      tags:
+      - projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    patch:
+      operationId: projects_partial_update
+      description: |-
+        Resolves the active organization for a DRF view from the X-Org header.
+
+        Every tenant-scoped view must use this mixin. It runs after DRF
+        authentication and before the view's permission classes, so it sees the
+        real user whatever the auth method (Basic, session, ...):
+
+          - unauthenticated              -> 401 with a WWW-Authenticate challenge
+          - missing X-Org header         -> 400
+          - unknown slug or non-member   -> 403, byte-identical in both cases
+
+        On success it sets `request.tenant` and `request.membership` and
+        activates the tenant context for the rest of the request, resetting it
+        when the request finishes, even if the view raised.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this project.
+        required: true
+      tags:
+      - projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    delete:
+      operationId: projects_destroy
+      description: |-
+        Resolves the active organization for a DRF view from the X-Org header.
+
+        Every tenant-scoped view must use this mixin. It runs after DRF
+        authentication and before the view's permission classes, so it sees the
+        real user whatever the auth method (Basic, session, ...):
+
+          - unauthenticated              -> 401 with a WWW-Authenticate challenge
+          - missing X-Org header         -> 400
+          - unknown slug or non-member   -> 403, byte-identical in both cases
+
+        On success it sets `request.tenant` and `request.membership` and
+        activates the tenant context for the rest of the request, resetting it
+        when the request finishes, even if the view raised.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this project.
+        required: true
+      tags:
+      - projects
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/projects/export/:
+    get:
+      operationId: projects_export_retrieve
+      description: Download the organization's projects as CSV (Pro plan only).
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      tags:
+      - projects
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+          description: ''
+  /api/subscription/:
+    get:
+      operationId: subscription_retrieve
+      description: |-
+        The active organization's plan (mock billing, no payment provider).
+
+        Every member can view it; only owners change it. Downgrading is allowed
+        even when the org is over the new plan's limits: nothing is deleted, but
+        adding projects or members is blocked until usage is back under the limit.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      tags:
+      - subscription
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    patch:
+      operationId: subscription_partial_update
+      description: |-
+        The active organization's plan (mock billing, no payment provider).
+
+        Every member can view it; only owners change it. Downgrading is allowed
+        even when the org is over the new plan's limits: nothing is deleted, but
+        adding projects or members is blocked until usage is back under the limit.
+      parameters:
+      - in: header
+        name: X-Org
+        schema:
+          type: string
+        description: Slug of the organization (tenant) to act in.
+        required: true
+      tags:
+      - subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePlanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePlanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePlanRequest'
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+components:
+  schemas:
+    AcceptInvitationRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - token
+    AcceptInvitationResponse:
+      type: object
+      properties:
+        organization:
+          type: object
+          additionalProperties: {}
+        role:
+          type: string
+      required:
+      - organization
+      - role
+    AuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        action:
+          type: string
+          readOnly: true
+        actor:
+          type: integer
+          readOnly: true
+          nullable: true
+        actor_email:
+          type: string
+          format: email
+          readOnly: true
+        target_type:
+          type: string
+          readOnly: true
+        target_id:
+          type: string
+          readOnly: true
+        target_repr:
+          type: string
+          readOnly: true
+        changes:
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor
+      - actor_email
+      - changes
+      - created_at
+      - id
+      - target_id
+      - target_repr
+      - target_type
+    Invitation:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        status:
+          type: string
+          readOnly: true
+        invited_by:
+          type: string
+          format: email
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+        accepted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - accepted_at
+      - created_at
+      - email
+      - expires_at
+      - id
+      - invited_by
+      - status
+    InvitationRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+      required:
+      - email
+    Me:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        organizations:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - email
+      - id
+      - organizations
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/MemberUser'
+          readOnly: true
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - user
+    MemberUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+      required:
+      - email
+      - first_name
+      - id
+      - last_name
+    OverLimit:
+      type: object
+      properties:
+        members:
+          type: boolean
+        projects:
+          type: boolean
+      required:
+      - members
+      - projects
+    PaginatedAuditLogEntryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLogEntry'
+    PaginatedInvitationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invitation'
+    PaginatedMemberList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+    PaginatedProjectList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+    PatchedChangePlanRequest:
+      type: object
+      properties:
+        plan:
+          $ref: '#/components/schemas/PlanEnum'
+    PatchedMemberRequest:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+    PatchedProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+    PlanEnum:
+      enum:
+      - free
+      - pro
+      type: string
+      description: |-
+        * `free` - Free
+        * `pro` - Pro
+    PlanLimits:
+      type: object
+      properties:
+        max_members:
+          type: integer
+          nullable: true
+        max_projects:
+          type: integer
+          nullable: true
+        features:
+          type: array
+          items:
+            type: string
+      required:
+      - features
+      - max_members
+      - max_projects
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        organization:
+          type: string
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - id
+      - name
+      - organization
+      - updated_at
+    ProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+      required:
+      - name
+    RoleEnum:
+      enum:
+      - owner
+      - admin
+      - member
+      type: string
+      description: |-
+        * `owner` - Owner
+        * `admin` - Admin
+        * `member` - Member
+    SignupRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        organization_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        organization_slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - email
+      - organization_name
+      - password
+    SignupResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/Me'
+      required:
+      - user
+    Subscription:
+      type: object
+      properties:
+        plan:
+          $ref: '#/components/schemas/PlanEnum'
+        limits:
+          allOf:
+          - $ref: '#/components/schemas/PlanLimits'
+          readOnly: true
+        usage:
+          allOf:
+          - $ref: '#/components/schemas/Usage'
+          readOnly: true
+        over_limit:
+          allOf:
+          - $ref: '#/components/schemas/OverLimit'
+          readOnly: true
+        warnings:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - limits
+      - over_limit
+      - plan
+      - usage
+      - warnings
+    Usage:
+      type: object
+      properties:
+        members:
+          type: integer
+        pending_invitations:
+          type: integer
+        projects:
+          type: integer
+      required:
+      - members
+      - pending_invitations
+      - projects
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

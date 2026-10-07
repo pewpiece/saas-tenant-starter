@@ -57,6 +57,15 @@ with tenant_context(org):
 exports one tenant's tenant-owned rows. `/admin/` is a cross-tenant support
 tool and reads through `all_tenants`.
 
+## API schema
+
+`openapi.yaml` is generated from the code and checked in. Regenerate it after
+changing the API:
+
+```bash
+python manage.py spectacular --validate --fail-on-warn --file openapi.yaml
+```
+
 ## Linting
 
 ```bash
@@ -85,13 +94,47 @@ curl -u user@example.com:password \
 List endpoints are paginated (`count`, `next`, `previous`, `results`;
 20 per page, `?page_size=` up to 100).
 
-Role matrix for `/api/projects/`:
+### Endpoints
 
-| Role   | List/Retrieve | Create/Update | Delete |
-|--------|:---:|:---:|:---:|
-| member | yes | no  | no  |
-| admin  | yes | yes | no  |
-| owner  | yes | yes | yes |
+| Endpoint | Tenant (`X-Org`) | Purpose |
+|---|:---:|---|
+| `POST /api/auth/signup/` | no | Create a user + organization (caller becomes owner, Free plan) |
+| `GET /api/me/` | no | Current user and their organizations (valid `X-Org` values) |
+| `POST /api/invitations/accept/` | no | Accept an invitation token (new users set a password) |
+| `/api/projects/` (+ `/export/`) | yes | Projects; CSV export is Pro-only |
+| `/api/members/` | yes | List members, change roles, remove, leave |
+| `/api/invitations/` | yes | Invite by email, list, revoke |
+| `GET/PATCH /api/subscription/` | yes | Plan, limits, usage; change plan (mock billing) |
+| `GET /api/audit-log/` | yes | Append-only audit trail |
+| `/api/schema/`, `/api/docs/` | no | OpenAPI schema and Swagger UI |
+
+### Roles
+
+| Action | member | admin | owner |
+|---|:---:|:---:|:---:|
+| List/retrieve projects, members, plan | yes | yes | yes |
+| Create/update projects | no | yes | yes |
+| Delete projects | no | no | yes |
+| Export projects (Pro plan) | yes | yes | yes |
+| Invite (member/admin) / revoke invitations | no | yes | yes |
+| Invite an owner, change roles, change plan | no | no | yes |
+| Remove a member | no | plain members | anyone |
+| Leave the organization | yes | yes | yes (not the last owner) |
+| Read the audit log | no | yes | yes |
+
+### Plans (mock subscription)
+
+| | Free | Pro |
+|---|---|---|
+| Members (incl. pending invitations) | 3 | unlimited |
+| Projects | 5 | unlimited |
+| CSV export | no | yes |
+
+Downgrading while over a limit keeps all data; creating projects or adding
+members is blocked until usage is back under the limit.
+
+Invitation emails go to the console (`EMAIL_BACKEND` is the console backend
+by default), so the accept link appears in the `runserver` output.
 
 See [docs/decisions.md](docs/decisions.md) for notes on ambiguous design
 choices made along the way.
