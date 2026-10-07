@@ -24,11 +24,31 @@ D-13). Details: [defect-log.md](defect-log.md).
 
 Result at end of phase: 100 tests pass, ruff clean.
 
+## Phase 2: Product features (done)
+
+- Signup (user + org + owner + Free plan) and `/api/me/` (org switching).
+- Invitations: hashed single-use tokens, 7-day expiry, console email on
+  commit, accept for new and existing users, revoke, org taken only from
+  the invitation.
+- Member management: role changes (owners), removal and leaving, last owner
+  protected (409).
+- Users in multiple orgs: tests for switching via X-Org (Basic + session).
+- Plans: Free/Pro mock subscription, limits enforced with row locks, CSV
+  export gated to Pro, downgrade keeps data and blocks creation.
+- Append-only audit log of project create/update/delete, role changes,
+  removals, invitations and plan changes; `GET /api/audit-log/`.
+- Pagination and throttling (done in Phase 1, D-08); OpenAPI schema with
+  drf-spectacular, checked in as `openapi.yaml`.
+- Live smoke test of the whole flow: `docs/milestone-2-smoke.txt`.
+- Defects found: D-14 (schema crash), D-15 (invite without role -> 500).
+
+Result at end of phase: 213 tests pass, ruff clean, schema valid with
+`--fail-on-warn`.
+
 ## Next
 
-Phase 2: product features (signup, invites, member management, plans,
-audit log, OpenAPI schema). Pagination and throttling from the Phase 2 list
-were already delivered in Phase 1 (D-08).
+Phase 3: QA cycle (test strategy, traceability, isolation and authorization
+suites, boundary tests, Schemathesis, Locust, coverage, mutmut, CI).
 
 ## Open issues
 
@@ -37,3 +57,5 @@ were already delivered in Phase 1 (D-08).
 - Last-owner protection is enforced by `Membership.save()/delete()` and a
   user `pre_delete` signal; `Membership.objects.filter(...).delete()` and
   `.update(role=...)` bypass it (no API path uses them).
+- Audit log immutability is ORM-level only (no database trigger).
+- Signup reveals whether an email is registered.

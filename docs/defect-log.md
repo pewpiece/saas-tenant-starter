@@ -23,6 +23,8 @@ any release).
 | D-11 | `objects.bulk_create` writes rows into another tenant | High | P1 | `test_save_guards.py::test_bulk_create_*` | 0b3c152 | Fixed |
 | D-12 | `objects.filter(...).update(organization=…)` moves rows to another tenant | High | P1 | `test_save_guards.py::test_queryset_update_cannot_move_rows_to_other_org` | 0b3c152 | Fixed |
 | D-13 | `objects.raw()` returns every tenant's rows | High | P1 | `test_save_guards.py::test_raw_on_tenant_manager_is_refused` | 0b3c152 | Fixed |
+| D-14 | OpenAPI generation crashes on a tenant model with a conditional unique constraint | Low | P2 | `config/tests/test_deploy_settings.py::test_check_deploy_passes_with_production_environment` | b81012a | Fixed |
+| D-15 | `POST /api/invitations/` without `role` returns 500 | Medium | P2 | `test_invitations.py::test_role_defaults_to_member_when_omitted` | d6f066f | Fixed |
 
 ---
 
@@ -227,3 +229,34 @@ any release).
 - **Tests:** `test_raw_on_tenant_manager_is_refused` (failing at 7a4eef5).
 - **Fix:** 0b3c152 (`UnscopedQueryError`; use `all_tenants.raw()`
   explicitly).
+
+## D-14: Schema generation crash from DRF's automatic unique validator
+- **Severity / priority:** Low / P2 (development-time; never committed)
+- **Found by:** `test_check_deploy_passes_with_production_environment`
+  (the deploy check also runs drf-spectacular's schema check) while adding
+  `Invitation`.
+- **Steps to reproduce:** add a `UniqueConstraint(condition=...)` to a
+  `TenantOwnedModel` and a `ModelSerializer` for it; run
+  `manage.py check --deploy` or `spectacular`.
+- **Expected:** schema generated.
+- **Actual:** `drf_spectacular.E001 … Invitation.objects was queried with
+  no active tenant`. DRF 3.15 builds a validator from conditional unique
+  constraints via `model._default_manager.filter(condition)` whenever the
+  serializer's fields are built, which needs a tenant.
+- **Fix:** b81012a. `InvitationSerializer.get_unique_together_constraints`
+  returns nothing; `validate_email` performs the check and the database
+  constraint backs it up. Process note: the failing state was seen locally
+  and fixed before committing, so there is no separate red commit.
+
+## D-15: Inviting without a role crashes
+- **Severity / priority:** Medium / P2
+- **Found by:** `test_downgrade_with_too_many_members_keeps_their_access`
+  (Phase 2 plan tests), which invited without a `role`.
+- **Steps to reproduce:** as an owner, `POST /api/invitations/` with
+  `{"email": "x@example.com"}`.
+- **Expected:** 201, role defaults to `member`.
+- **Actual:** 500, `KeyError: 'role'` in `InvitationViewSet.perform_create`
+  (model defaults are not copied into `validated_data`).
+- **Tests:** `test_role_defaults_to_member_when_omitted` (failing at
+  5204a2d, together with the plan test that found it).
+- **Fix:** d6f066f.

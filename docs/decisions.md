@@ -54,3 +54,36 @@ Ambiguous points, the simplest option chosen, and why.
   create. With no active tenant (system code, admin, factories) an explicit
   `organization` is required on create. `objects.raw()` is refused outright
   (it cannot be scoped); use `all_tenants.raw()` and filter explicitly.
+
+- **Signup creates the org too.** `POST /api/auth/signup/` makes a user, an
+  organization (slug from the name unless given), an owner membership and a
+  Free subscription in one transaction. It rejects an email that already
+  exists, which reveals that the email is registered: accepted for a
+  starter (the alternative needs email verification).
+
+- **Invitations.** Tokens are 32 random bytes, stored only as SHA-256, valid
+  7 days, single use, revocable. One open invitation per email per org
+  (DB constraint); an expired one is revoked automatically when re-inviting.
+  Existing users accept by authenticating as the invited email; new users
+  set a password on accept. Admins invite members/admins; only owners invite
+  owners. The email is sent on commit through the console backend.
+
+- **Member management.** Only owners change roles. Owners remove anyone,
+  admins remove plain members, anyone can leave. The last owner can be
+  neither demoted nor removed: 409 `last_owner`.
+
+- **Plans.** Mock `Subscription` per org, Free (3 members incl. pending
+  invitations, 5 projects) or Pro (unlimited, CSV export). Limit checks lock
+  the org row. Downgrading while over a limit is allowed and deletes
+  nothing: existing data stays readable and editable, creation is blocked
+  until usage is back under the limit. Plan-limit and Pro-feature refusals
+  are 403 with codes `plan_limit_reached` / `plan_upgrade_required`.
+
+- **Audit log.** Tenant-owned and append-only at the ORM level (instances,
+  querysets and managers refuse update/delete); rows go only when their org
+  is deleted. Recorded explicitly in views (not signals) so the actor is
+  known; `ATOMIC_REQUESTS` keeps a change and its entry in one transaction.
+  Not enforced in the database (no trigger), so raw SQL could still alter it.
+
+- **CSV export escapes formulas.** Cells starting with `= + - @ TAB CR` get a
+  leading `'` to prevent CSV injection in spreadsheet apps.
