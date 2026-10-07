@@ -27,8 +27,8 @@ class AllTenantsAuditQuerySet(_AppendOnlyMixin, models.QuerySet):
     pass
 
 
-class AuditLogManager(TenantManager):
-    _queryset_class = AuditQuerySet
+class AuditLogManager(TenantManager.from_queryset(AuditQuerySet)):
+    pass
 
 
 class AuditLogEntry(TenantOwnedModel):

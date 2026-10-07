@@ -232,8 +232,8 @@ class AllTenantsInvitationQuerySet(_InvitationFilters, models.QuerySet):
     pass
 
 
-class InvitationManager(TenantManager):
-    _queryset_class = InvitationQuerySet
+class InvitationManager(TenantManager.from_queryset(InvitationQuerySet)):
+    pass
 
 
 class Invitation(TenantOwnedModel):
