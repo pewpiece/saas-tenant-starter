@@ -49,3 +49,19 @@ class AcceptInvitationSerializer(serializers.Serializer):
 class AcceptInvitationResponseSerializer(serializers.Serializer):
     organization = serializers.DictField()
     role = serializers.CharField()
+
+
+class MemberUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    email = serializers.EmailField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+
+
+class MemberSerializer(serializers.ModelSerializer):
+    user = MemberUserSerializer(read_only=True)
+
+    class Meta:
+        model = Membership
+        fields = ["id", "user", "role", "created_at"]
+        read_only_fields = ["id", "user", "created_at"]
