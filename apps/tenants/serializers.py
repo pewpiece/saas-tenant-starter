@@ -30,6 +30,10 @@ class InvitationSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         value = value.lower()
+        # Django's EmailValidator does not enforce RFC 5321's 64-octet limit
+        # on the local part; such an address can never receive the email.
+        if len(value.rsplit("@", 1)[0].encode()) > 64:
+            raise serializers.ValidationError("The part before @ can be at most 64 characters.")
         org = self.context["request"].tenant
         if Membership.objects.filter(organization=org, user__email__iexact=value).exists():
             raise serializers.ValidationError("This person is already a member.")
