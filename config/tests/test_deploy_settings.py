@@ -24,6 +24,7 @@ def run_manage(*args, **env_overrides):
         capture_output=True,
         text=True,
         timeout=60,
+        check=False,
     )
 
 
