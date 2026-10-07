@@ -1,0 +1,65 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
+django: version: 5.0.14, settings: config.test_settings (from ini)
+rootdir: /home/pewang/saas-tenant-starter
+configfile: pytest.ini
+testpaths: apps, config
+plugins: platformdirs-4.12.3, locust-2.46.7, cov-7.1.0, django-4.14.0, anyio-4.15.1, Faker-40.40.0, hypothesis-6.168.5, subtests-0.14.2
+collected 456 items
+
+apps/accounts/tests/test_factories.py .                                  [  0%]
+apps/accounts/tests/test_signup.py .............                         [  3%]
+apps/accounts/tests/test_user_deletion.py .......                        [  4%]
+apps/accounts/tests/test_user_model.py ...                               [  5%]
+apps/audit/tests/test_audit_log.py ..............                        [  8%]
+apps/billing/tests/test_plans.py ...........................             [ 14%]
+apps/core/tests/test_authorization_matrix.py ........................... [ 20%]
+.....................................................................    [ 35%]
+apps/core/tests/test_boundaries.py ..................................... [ 43%]
+.........................                                                [ 48%]
+apps/core/tests/test_mass_assignment.py ........                         [ 50%]
+apps/core/tests/test_seed_qa.py .                                        [ 50%]
+apps/core/tests/test_tenant_isolation_suite.py ......................... [ 56%]
+.................                                                        [ 60%]
+apps/projects/tests/test_api_limits.py .....                             [ 61%]
+apps/projects/tests/test_isolation.py ..                                 [ 61%]
+apps/projects/tests/test_mass_assignment.py .                            [ 61%]
+apps/projects/tests/test_role_permissions.py ...............             [ 65%]
+apps/projects/tests/test_write_effects.py .......                        [ 66%]
+apps/tenants/tests/test_admin.py ........                                [ 68%]
+apps/tenants/tests/test_invitations.py .............................     [ 74%]
+apps/tenants/tests/test_managers.py .....                                [ 75%]
+apps/tenants/tests/test_members.py .........................             [ 81%]
+apps/tenants/tests/test_membership_enforcement.py ...                    [ 82%]
+apps/tenants/tests/test_mutation_findings.py ........................... [ 87%]
+..                                                                       [ 88%]
+apps/tenants/tests/test_org_switching.py .....                           [ 89%]
+apps/tenants/tests/test_save_guards.py .............                     [ 92%]
+apps/tenants/tests/test_slug_enumeration.py ........                     [ 94%]
+apps/tenants/tests/test_system_access.py ........                        [ 95%]
+apps/tenants/tests/test_tenant_resolution.py .......                     [ 97%]
+apps/tenants/tests/test_unauthenticated.py ....                          [ 98%]
+apps/core/tests/test_openapi_contract.py .....                           [ 99%]
+config/tests/test_deploy_settings.py ...                                 [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.3-final-0 ________________
+
+Name                           Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------
+apps/accounts/models.py           38      2      6      2    91%   24, 26
+apps/audit/admin.py               15      1      0      0    93%   15
+apps/audit/models.py              41      2      2      0    95%   16, 66
+apps/audit/services.py            12      1      6      1    89%   11
+apps/core/schema.py               39      1     18      1    96%   68
+apps/projects/permissions.py      13      1      6      1    89%   22
+apps/tenants/admin.py             46      1      8      2    94%   24->26, 44
+apps/tenants/invitations.py       61      0     16      1    99%   114->exit
+apps/tenants/models.py           163      0     40      1    99%   194->exit
+config/settings.py                44      5      8      3    81%   14, 22-24, 183
+--------------------------------------------------------------------------
+TOTAL                           1128     14    176     12    98%
+
+53 files skipped due to complete coverage.
+Required test coverage of 90% reached. Total coverage: 97.85%
+============================= 456 passed in 59.95s =============================
