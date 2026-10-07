@@ -43,3 +43,10 @@ Ambiguous points, the simplest option chosen, and why.
   directory was the user's actual home directory (full of unrelated personal
   files), not empty. Created a dedicated project directory instead of
   scaffolding Django directly into `$HOME`.
+
+- **While a tenant is active, no write may touch another tenant, through any
+  manager.** `save()`/`delete()` reject rows of another organization even if
+  they were loaded via `all_tenants`; `organization` is immutable after
+  create. With no active tenant (system code, admin, factories) an explicit
+  `organization` is required on create. `objects.raw()` is refused outright
+  (it cannot be scoped); use `all_tenants.raw()` and filter explicitly.
