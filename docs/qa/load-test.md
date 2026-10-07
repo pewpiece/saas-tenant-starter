@@ -18,12 +18,12 @@ tenant's `X-Org` (must be 403).
 
 | Run | Users | Duration | Requests | Failures | req/s | Median | p95 | p99 |
 |---|---|---|---|---|---|---|---|---|
-| Saturation | 100 | 120 s | 2,499 | 0 | 20.85 | 4,300 ms | 4,900 ms* | 5,000 ms* |
-| Below saturation | 10 | 60 s | 1,121 | 0 | 18.73 | 210 ms | 320 ms | 380 ms |
+| Saturation | 100 | 120 s | 2,485 | 0 | 20.87 | 4,200 ms | 5,000 ms | 5,100 ms |
+| Below saturation | 10 | 60 s | 1,106 | 0 | 18.73 | 210 ms | 320 ms | 380 ms |
 
-\* from the percentile table in [`summary-basic-auth.txt`](locust/summary-basic-auth.txt).
+Numbers are Locust's final stats CSVs (`run_stats.csv`, `run-10users_stats.csv`).
 
-**Isolation under load:** 0 cross-tenant rows in 2,499 + 1,121 responses;
+**Isolation under load:** 0 cross-tenant rows in any response of either run;
 every foreign-`X-Org` probe (140 in the 100-user run) returned 403.
 
 A first 100-user run had 3 failed creates (403 `plan_limit_reached`):
