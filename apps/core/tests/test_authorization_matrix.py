@@ -1,0 +1,162 @@
+"""Authorization matrix: role x endpoint x action.
+
+EXPECTED is the specification. Each cell is a test that performs the real
+request through HTTP Basic auth and checks the status code. Run with
+AUTHZ_MATRIX_OUT=<path> to also write the observed matrix as a markdown table
+(docs/qa/authorization-matrix.md is generated this way).
+
+Roles: owner/admin/member of org A, "outsider" (owner of org B sending
+X-Org: org-a) and "anonymous" (no credentials). Org A is on the Pro plan so
+plan limits never mask a permission result.
+"""
+
+import itertools
+import os
+from pathlib import Path
+
+import pytest
+
+from apps.billing.models import Subscription
+from apps.core.tests.routes import api_routes
+from apps.projects.tests.factories import ProjectFactory
+from apps.tenants.context import tenant_context
+from apps.tenants.models import Invitation
+from apps.tenants.tests.factories import MembershipFactory, OrganizationFactory
+
+pytestmark = pytest.mark.django_db
+
+ROLES = ["owner", "admin", "member", "outsider", "anonymous"]
+
+
+def _row(owner, admin, member, outsider, anonymous):
+    return dict(zip(ROLES, (owner, admin, member, outsider, anonymous), strict=True))
+
+
+# (endpoint, action, method, url, body)   url/body may use {project}, {member2}, {invitation}
+CASES = {
+    ("/api/projects/", "list"): ("get", "/api/projects/", None, _row(200, 200, 200, 403, 401)),
+    ("/api/projects/", "create"): ("post", "/api/projects/", {"name": "n"}, _row(201, 201, 403, 403, 401)),
+    ("/api/projects/{id}/", "retrieve"): ("get", "/api/projects/{project}/", None, _row(200, 200, 200, 403, 401)),
+    ("/api/projects/{id}/", "update"): (
+        "patch", "/api/projects/{project}/", {"name": "r"}, _row(200, 200, 403, 403, 401),
+    ),
+    ("/api/projects/{id}/", "delete"): ("delete", "/api/projects/{project}/", None, _row(204, 403, 403, 403, 401)),
+    ("/api/projects/export/", "export (Pro)"): (
+        "get", "/api/projects/export/", None, _row(200, 200, 200, 403, 401),
+    ),
+    ("/api/members/", "list"): ("get", "/api/members/", None, _row(200, 200, 200, 403, 401)),
+    ("/api/members/{id}/", "retrieve"): ("get", "/api/members/{member2}/", None, _row(200, 200, 200, 403, 401)),
+    ("/api/members/{id}/", "change role"): (
+        "patch", "/api/members/{member2}/", {"role": "admin"}, _row(200, 403, 403, 403, 401),
+    ),
+    ("/api/members/{id}/", "remove other member"): (
+        "delete", "/api/members/{member2}/", None, _row(204, 204, 403, 403, 401),
+    ),
+    ("/api/members/{id}/", "remove an owner"): (
+        "delete", "/api/members/{owner2}/", None, _row(204, 403, 403, 403, 401),
+    ),
+    ("/api/invitations/", "list"): ("get", "/api/invitations/", None, _row(200, 200, 403, 403, 401)),
+    ("/api/invitations/", "invite member"): (
+        "post", "/api/invitations/", {"email": "new@a.test", "role": "member"}, _row(201, 201, 403, 403, 401),
+    ),
+    ("/api/invitations/", "invite owner"): (
+        "post", "/api/invitations/", {"email": "boss@a.test", "role": "owner"}, _row(201, 403, 403, 403, 401),
+    ),
+    ("/api/invitations/{id}/", "revoke"): (
+        "delete", "/api/invitations/{invitation}/", None, _row(204, 204, 403, 403, 401),
+    ),
+    ("/api/subscription/", "view"): ("get", "/api/subscription/", None, _row(200, 200, 200, 403, 401)),
+    ("/api/subscription/", "change plan"): (
+        "patch", "/api/subscription/", {"plan": "free"}, _row(200, 403, 403, 403, 401),
+    ),
+    ("/api/audit-log/", "list"): ("get", "/api/audit-log/", None, _row(200, 200, 403, 403, 401)),
+    ("/api/me/", "view"): ("get", "/api/me/", None, _row(200, 200, 200, 200, 401)),
+}
+
+OBSERVED = {}
+
+
+@pytest.fixture
+def world(basic_client):
+    org_a = OrganizationFactory(slug="org-a", name="Org A")
+    org_b = OrganizationFactory(slug="org-b", name="Org B")
+    Subscription.objects.create(organization=org_a, plan="pro")
+    users = {}
+    for role in ("owner", "admin", "member"):
+        users[role] = MembershipFactory(organization=org_a, role=role).user
+    owner2 = MembershipFactory(organization=org_a, role="owner")
+    member2 = MembershipFactory(organization=org_a, role="member")
+    users["outsider"] = MembershipFactory(organization=org_b, role="owner").user
+    project = ProjectFactory(organization=org_a)
+    with tenant_context(org_a):
+        invitation, _ = Invitation.issue(email="pending@a.test", role="member", invited_by=users["owner"])
+    ids = {"project": project.id, "member2": member2.id, "owner2": owner2.id, "invitation": invitation.id}
+
+    def client_for(role):
+        if role == "anonymous":
+            return basic_client(org_slug="org-a")
+        return basic_client(users[role], org_slug="org-a")
+
+    return client_for, ids
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _write_matrix():
+    yield
+    out = os.environ.get("AUTHZ_MATRIX_OUT")
+    if out and OBSERVED:
+        Path(out).write_text(_render_markdown())
+
+
+def _render_markdown():
+    lines = [
+        "# Authorization matrix",
+        "",
+        "Generated by `apps/core/tests/test_authorization_matrix.py` from real requests",
+        "(HTTP Basic auth, `X-Org: org-a`; org A on the Pro plan). Each cell is the",
+        "observed status; a cell is marked with ✗ if it differs from the specification.",
+        "",
+        "| Endpoint | Action | " + " | ".join(ROLES) + " |",
+        "|---|---|" + "---|" * len(ROLES),
+    ]
+    for (endpoint, action), (_, _, _, expected) in CASES.items():
+        cells = []
+        for role in ROLES:
+            observed = OBSERVED.get((endpoint, action, role))
+            mark = "" if observed == expected[role] else " ✗"
+            cells.append(f"{observed}{mark}")
+        lines.append(f"| `{endpoint}` | {action} | " + " | ".join(cells) + " |")
+    lines += [
+        "",
+        "Legend: 200/201/204 allowed; 401 not authenticated; 403 forbidden (or not a",
+        "member of `org-a`). `outsider` is an owner of another organization.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+@pytest.mark.parametrize(
+    "case, role",
+    [pytest.param(case, role, id=f"{case[0]} {case[1]} as {role}") for case, role in itertools.product(CASES, ROLES)],
+)
+def test_authorization_matrix(world, case, role):
+    client_for, ids = world
+    method, url, body, expected = CASES[case]
+    url = url.format(**ids)
+
+    if body is None:
+        response = getattr(client_for(role), method)(url)
+    else:
+        response = getattr(client_for(role), method)(url, body, format="json")
+
+    OBSERVED[(case[0], case[1], role)] = response.status_code
+    assert response.status_code == expected[role], response.content[:300]
+
+
+def test_matrix_covers_every_tenant_route_and_role():
+    tenant_routes = {
+        "/" + r.pattern.replace("{pk}", "{id}") for r in api_routes() if r.is_tenant_scoped
+    }
+
+    assert tenant_routes <= {endpoint for endpoint, _ in CASES}
+    assert all(set(row[3]) == set(ROLES) for row in CASES.values())
