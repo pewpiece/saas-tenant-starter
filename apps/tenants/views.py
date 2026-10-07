@@ -31,6 +31,16 @@ class TenantScopedViewMixin:
 
     _tenant_token = None
 
+    def tenant_queryset(self, queryset_factory, empty_queryset):
+        """Return queryset_factory(), or an empty queryset during schema generation.
+
+        drf-spectacular introspects views without a request or tenant, where
+        the tenant-scoped managers (correctly) raise.
+        """
+        if getattr(self, "swagger_fake_view", False):
+            return empty_queryset
+        return queryset_factory()
+
     def check_permissions(self, request):
         # DRF's initial() authenticates, then calls check_permissions(), so
         # this is the first point where request.user is reliable.

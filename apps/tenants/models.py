@@ -1,5 +1,10 @@
+import hashlib
+import secrets
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models, transaction
+from django.utils import timezone
 
 from apps.tenants.context import get_current_org
 from apps.tenants.exceptions import (
@@ -210,3 +215,102 @@ class TenantOwnedModel(models.Model):
         if org is not None and self.organization_id != org.id:
             raise TenantMismatchError(_mismatch_message(self, org))
         return super().delete(*args, **kwargs)
+
+
+class _InvitationFilters:
+    def pending(self):
+        return self.filter(
+            accepted_at__isnull=True, revoked_at__isnull=True, expires_at__gt=timezone.now()
+        )
+
+
+class InvitationQuerySet(_InvitationFilters, TenantQuerySet):
+    pass
+
+
+class AllTenantsInvitationQuerySet(_InvitationFilters, models.QuerySet):
+    pass
+
+
+class InvitationManager(TenantManager):
+    _queryset_class = InvitationQuerySet
+
+
+class Invitation(TenantOwnedModel):
+    """A single-use, expiring invitation to join an organization.
+
+    Only a SHA-256 hash of the token is stored; the raw token exists only in
+    the email sent to the invitee, so a database leak does not leak usable
+    invitations.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        ACCEPTED = "accepted", "Accepted"
+        EXPIRED = "expired", "Expired"
+        REVOKED = "revoked", "Revoked"
+
+    email = models.EmailField()
+    role = models.CharField(
+        max_length=10, choices=Membership.Role.choices, default=Membership.Role.MEMBER
+    )
+    token_hash = models.CharField(max_length=64, unique=True, editable=False)
+    invited_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    accepted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    revoked_at = models.DateTimeField(null=True, blank=True)
+
+    objects = InvitationManager()
+    all_tenants = models.Manager.from_queryset(AllTenantsInvitationQuerySet)()
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [
+            # At most one open (not accepted, not revoked) invitation per
+            # email per org. Expired ones are revoked before re-inviting.
+            models.UniqueConstraint(
+                fields=["organization", "email"],
+                condition=models.Q(accepted_at__isnull=True, revoked_at__isnull=True),
+                name="one_open_invitation_per_email",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.email} -> {self.organization_id} ({self.role})"
+
+    @staticmethod
+    def hash_token(raw_token):
+        return hashlib.sha256(raw_token.encode()).hexdigest()
+
+    @classmethod
+    def issue(cls, *, email, role, invited_by):
+        """Create an invitation in the active tenant; return (invitation, raw_token)."""
+        raw_token = secrets.token_urlsafe(32)
+        invitation = cls.objects.create(
+            email=email.lower(),
+            role=role,
+            invited_by=invited_by,
+            token_hash=cls.hash_token(raw_token),
+            expires_at=timezone.now() + timedelta(hours=settings.INVITATION_TTL_HOURS),
+        )
+        return invitation, raw_token
+
+    @property
+    def status(self):
+        if self.accepted_at:
+            return self.Status.ACCEPTED
+        if self.revoked_at:
+            return self.Status.REVOKED
+        if self.expires_at <= timezone.now():
+            return self.Status.EXPIRED
+        return self.Status.PENDING

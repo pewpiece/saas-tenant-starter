@@ -36,9 +36,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "apps.core",
     "apps.accounts",
     "apps.tenants",
     "apps.projects",
+    "apps.billing",
+    "apps.audit",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -83,6 +87,9 @@ DATABASES = {
         "PASSWORD": env.str("POSTGRES_PASSWORD", default="saas_starter"),
         "HOST": env.str("POSTGRES_HOST", default="localhost"),
         "PORT": env.str("POSTGRES_PORT", default="5432"),
+        # Each request is one transaction, so a change and its audit log
+        # entry are committed (or rolled back) together.
+        "ATOMIC_REQUESTS": True,
     }
 }
 
@@ -123,11 +130,35 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
     ],
+    "DEFAULT_SCHEMA_CLASS": "apps.core.schema.TenantAwareAutoSchema",
     "DEFAULT_THROTTLE_RATES": {
         "anon": env.str("DJANGO_THROTTLE_ANON", default="30/min"),
         "user": env.str("DJANGO_THROTTLE_USER", default="300/min"),
+        "auth": env.str("DJANGO_THROTTLE_AUTH", default="10/min"),
     },
+}
+
+# Invitations
+INVITATION_TTL_HOURS = env.int("DJANGO_INVITATION_TTL_HOURS", default=7 * 24)
+INVITATION_ACCEPT_URL = env.str(
+    "DJANGO_INVITATION_ACCEPT_URL", default="http://localhost:8000/invitations/accept?token={token}"
+)
+EMAIL_BACKEND = env.str(
+    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
+DEFAULT_FROM_EMAIL = env.str("DJANGO_DEFAULT_FROM_EMAIL", default="no-reply@saas-starter.local")
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "SaaS Tenant Starter API",
+    "DESCRIPTION": (
+        "Multi-tenant API. Tenant-scoped endpoints need authentication plus an "
+        "`X-Org: <organization-slug>` header."
+    ),
+    "VERSION": "2.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 # Failed HTTP Basic logins per client IP before a temporary lockout (429).
