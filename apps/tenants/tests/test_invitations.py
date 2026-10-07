@@ -321,3 +321,13 @@ def test_pro_plan_has_no_member_limit(invite, org_a, owner_a, make_org_member):
     response, _ = invite(owner_a, org_a, "sixth@example.com")
 
     assert response.status_code == 201
+
+
+def test_role_defaults_to_member_when_omitted(basic_client, org_a, owner_a):
+    """D-15: omitting "role" crashed with a 500 (KeyError in perform_create)."""
+    response = basic_client(owner_a, org_slug=org_a.slug).post(
+        "/api/invitations/", {"email": "norole@example.com"}, format="json"
+    )
+
+    assert response.status_code == 201
+    assert Invitation.all_tenants.get().role == MEMBER
