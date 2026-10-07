@@ -40,6 +40,23 @@ docker compose up -d
 pytest
 ```
 
+## System code and the admin
+
+Tenant-owned models have two managers: `objects` (scoped to the active
+tenant, raises if none is active) and `all_tenants` (unscoped, for admin
+and system code only). To run shell or command code as one tenant:
+
+```python
+from apps.tenants.context import tenant_context
+
+with tenant_context(org):
+    Project.objects.all()   # only org's projects
+```
+
+`python manage.py dumpdata` works for all tenants; `dumpdata projects --org acme`
+exports one tenant's tenant-owned rows. `/admin/` is a cross-tenant support
+tool and reads through `all_tenants`.
+
 ## Linting
 
 ```bash
@@ -48,16 +65,25 @@ ruff check .
 
 ## Using the API
 
-Every request under `/api/` must carry an `X-Org: <organization-slug>`
-header identifying the tenant, in addition to normal authentication
-(session or HTTP basic auth). The authenticated user must have a
-`Membership` in that organization, or the request is rejected with 403.
+Every tenant-scoped request under `/api/` needs normal authentication
+(HTTP Basic or a Django session) **and** an `X-Org: <organization-slug>`
+header naming the tenant. Tenant resolution happens after authentication:
+
+| Situation | Response |
+|---|---|
+| No or bad credentials | 401 with `WWW-Authenticate: Basic` |
+| Authenticated, no `X-Org` | 400 |
+| Unknown slug, or not a member | 403 (identical for both, so slugs can't be probed) |
+| Too many requests / failed logins | 429 |
 
 ```bash
 curl -u user@example.com:password \
   -H "X-Org: acme" \
   http://localhost:8000/api/projects/
 ```
+
+List endpoints are paginated (`count`, `next`, `previous`, `results`;
+20 per page, `?page_size=` up to 100).
 
 Role matrix for `/api/projects/`:
 
