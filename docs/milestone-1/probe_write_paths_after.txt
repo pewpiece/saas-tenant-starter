@@ -1,0 +1,4 @@
+bulk_create(organization=b) with tenant a active -> rows written to: raised TenantMismatchError: Project belongs to organization 9, but the active tenant is 8.
+bulk_create(no organization) with tenant a active: [<Project: y>]
+objects.filter(pk=row-in-a).update(organization=b) -> row now in: raised TenantMismatchError: A row's organization cannot be changed.
+objects.raw('SELECT * FROM projects_project') with tenant a -> rows seen: raised UnscopedQueryError: Project.objects.raw() cannot be tenant-scoped. Use Project.all_tenants.raw() and filter on

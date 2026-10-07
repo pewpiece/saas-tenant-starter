@@ -1,0 +1,4 @@
+bulk_create(organization=b) with tenant a active -> rows written to: ['probe-b']
+bulk_create(no organization) with tenant a active: raised IntegrityError: null value in column "organization_id" of relation "projects_project" violates not-null co
+objects.filter(pk=row-in-a).update(organization=b) -> row now in: (1, 'probe-b')
+objects.raw('SELECT * FROM projects_project') with tenant a -> rows seen: ['Website', 'row-in-a', 'row-in-b']

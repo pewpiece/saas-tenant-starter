@@ -5,15 +5,23 @@ Django settings for config project (SaaS tenant starter, Milestone 1).
 from pathlib import Path
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / ".env")
-
-SECRET_KEY = env.str("DJANGO_SECRET_KEY", default="django-insecure-dev-key-change-me")
+if env.bool("DJANGO_READ_DOT_ENV", default=True):
+    environ.Env.read_env(BASE_DIR / ".env")
 
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
+
+# Never fall back to a known key outside DEBUG: signed cookies, sessions and
+# password-reset tokens would all be forgeable.
+SECRET_KEY = env.str("DJANGO_SECRET_KEY", default="")
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is False.")
+    SECRET_KEY = "django-insecure-dev-only-key"
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
@@ -28,9 +36,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "apps.core",
     "apps.accounts",
     "apps.tenants",
     "apps.projects",
+    "apps.billing",
+    "apps.audit",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -41,7 +53,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "apps.tenants.middleware.TenantMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -76,6 +87,9 @@ DATABASES = {
         "PASSWORD": env.str("POSTGRES_PASSWORD", default="saas_starter"),
         "HOST": env.str("POSTGRES_HOST", default="localhost"),
         "PORT": env.str("POSTGRES_PORT", default="5432"),
+        # Each request is one transaction, so a change and its audit log
+        # entry are committed (or rolled back) together.
+        "ATOMIC_REQUESTS": True,
     }
 }
 
@@ -103,14 +117,70 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 REST_FRAMEWORK = {
+    # Basic first: DRF takes the WWW-Authenticate challenge from the first
+    # class, so unauthenticated requests get a proper 401 instead of a 403.
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.core.authentication.ThrottledBasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.BasicAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.DefaultPagination",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "apps.core.schema.TenantAwareAutoSchema",
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": env.str("DJANGO_THROTTLE_ANON", default="30/min"),
+        "user": env.str("DJANGO_THROTTLE_USER", default="300/min"),
+        "auth": env.str("DJANGO_THROTTLE_AUTH", default="10/min"),
+    },
 }
+
+# Invitations
+INVITATION_TTL_HOURS = env.int("DJANGO_INVITATION_TTL_HOURS", default=7 * 24)
+INVITATION_ACCEPT_URL = env.str(
+    "DJANGO_INVITATION_ACCEPT_URL", default="http://localhost:8000/invitations/accept?token={token}"
+)
+EMAIL_BACKEND = env.str(
+    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
+DEFAULT_FROM_EMAIL = env.str("DJANGO_DEFAULT_FROM_EMAIL", default="no-reply@saas-starter.local")
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "SaaS Tenant Starter API",
+    "DESCRIPTION": (
+        "Multi-tenant API. Tenant-scoped endpoints need authentication plus an "
+        "`X-Org: <organization-slug>` header."
+    ),
+    "VERSION": "2.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "apps.core.schema.add_error_responses",
+    ],
+}
+
+# Failed HTTP Basic logins per client IP before a temporary lockout (429).
+AUTH_FAILURE_LIMIT = env.int("DJANGO_AUTH_FAILURE_LIMIT", default=10)
+AUTH_FAILURE_WINDOW = env.int("DJANGO_AUTH_FAILURE_WINDOW", default=300)
+
+
+# Transport security. Defaults are strict whenever DEBUG is off; each one can
+# be overridden from the environment (e.g. when TLS ends at a proxy).
+
+SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=not DEBUG)
+SESSION_COOKIE_SECURE = env.bool("DJANGO_SESSION_COOKIE_SECURE", default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool("DJANGO_CSRF_COOKIE_SECURE", default=not DEBUG)
+SECURE_HSTS_SECONDS = env.int("DJANGO_SECURE_HSTS_SECONDS", default=0 if DEBUG else 31536000)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=not DEBUG)
+SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=not DEBUG)
+if env.bool("DJANGO_BEHIND_TLS_PROXY", default=False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Internationalization

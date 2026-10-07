@@ -1,0 +1,25 @@
+== Milestone 2 smoke test against runserver (port 8001), 2026-10-07T19:36:27+05:45
+$ signup
+{"user":{"id":6,"email":"smoke4537@example.com","first_name":"","last_name":"","organizations":[{"slug":"smoke-4537","name":"Smoke 4537","role":"owner"}]},"organization":{"slug":"smoke-4537","name":"Smoke 4537"}} -> 201
+$ invite guest as admin (owner)
+{"id":1,"email":"guest4537@example.com","role":"admin","status":"pending","invited_by":"smoke4537@example.com","created_at":"2026-10-07T13:51:28.211247Z","expires_at":"2026-10-14T13:51:28.210937Z","accepted_at":null} -> 201
+(token read from the console email in the server output: C7RJAU...)
+$ accept (new user sets password)
+{"organization":{"slug":"smoke-4537","name":"Smoke 4537"},"role":"admin"} -> 200
+$ accept again (reused token)
+{"token":"This invitation is invalid, expired or has already been used."} -> 400
+$ guest lists members
+[('smoke4537@example.com', 'owner'), ('guest4537@example.com', 'admin')]
+$ owner creates a project, guest (admin) renames it
+ rename -> 200
+$ audit log (owner)
+['project.update', 'project.create', 'invitation.accept', 'invitation.create', 'organization.create']
+$ export on Free
+{"detail":"This feature requires the Pro plan."} -> 403
+$ upgrade to Pro, export again
+ upgrade -> 200
+id,name,description,created_by,created_at
+16,Launch v2,,smoke4537@example.com,2026-10-07T13:51:29.841016+00:00
+ -> 200
+$ GET /api/schema/
+200 application/vnd.oai.openapi; charset=utf-8

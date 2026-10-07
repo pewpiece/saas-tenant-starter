@@ -33,11 +33,13 @@ def test_default_manager_filters_to_active_org():
 
 def test_save_auto_assigns_active_org_on_create():
     org = OrganizationFactory()
+    # Created before the tenant is active: ProjectFactory() writes a project
+    # into a *different* org, which the save() guard rejects while `org` is
+    # active (see test_save_guards.py).
+    creator = ProjectFactory().created_by
     token = set_current_org(org)
     try:
-        project = Project.objects.create(
-            name="Autoassigned", created_by=ProjectFactory().created_by
-        )
+        project = Project.objects.create(name="Autoassigned", created_by=creator)
     finally:
         reset_current_org(token)
 

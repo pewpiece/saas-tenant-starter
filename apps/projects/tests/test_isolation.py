@@ -30,5 +30,7 @@ def test_list_never_includes_other_org_rows(api_client, org_a, org_b, make_org_m
     response = api_client.get("/api/projects/")
 
     assert response.status_code == 200
-    returned_ids = {row["id"] for row in response.data}
+    # The list is paginated since D-08; rows are under "results".
+    assert response.data["count"] == 1
+    returned_ids = {row["id"] for row in response.data["results"]}
     assert returned_ids == {project_a.id}
