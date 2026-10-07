@@ -1,0 +1,157 @@
+SaaS Tenant Starter: test output
+Run: 2026-10-07T18:03:02+05:45  |  Python 3.12.3, Django 5.0.14, DRF 3.15.2, PostgreSQL 16.15
+Commit: 2c24a39
+
+################ 1. Automated suite (check / migrations / pytest / ruff) ################
+$ python manage.py check
+System check identified no issues (0 silenced).
+$ python manage.py makemigrations --check --dry-run
+No changes detected
+$ python manage.py migrate
+Operations to perform:
+  Apply all migrations: accounts, admin, auth, contenttypes, projects, sessions, tenants
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying tenants.0001_initial... OK
+  Applying projects.0001_initial... OK
+  Applying sessions.0001_initial... OK
+$ pytest -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/pewang/saas-tenant-starter/.venv/bin/python3
+cachedir: .pytest_cache
+django: version: 5.0.14, settings: config.settings (from ini)
+rootdir: /home/pewang/saas-tenant-starter
+configfile: pytest.ini
+plugins: django-4.14.0, Faker-40.40.0
+collecting ... collected 32 items
+
+apps/accounts/tests/test_user_model.py::test_user_has_no_username_field PASSED [  3%]
+apps/accounts/tests/test_user_model.py::test_create_user_requires_email PASSED [  6%]
+apps/accounts/tests/test_user_model.py::test_create_user_normalizes_and_logs_in_with_email PASSED [  9%]
+apps/projects/tests/test_isolation.py::test_cross_org_detail_returns_404 PASSED [ 12%]
+apps/projects/tests/test_isolation.py::test_list_never_includes_other_org_rows PASSED [ 15%]
+apps/projects/tests/test_mass_assignment.py::test_organization_in_body_is_ignored_on_create PASSED [ 18%]
+apps/projects/tests/test_role_permissions.py::test_list[member-200] PASSED [ 21%]
+apps/projects/tests/test_role_permissions.py::test_list[admin-200] PASSED [ 25%]
+apps/projects/tests/test_role_permissions.py::test_list[owner-200] PASSED [ 28%]
+apps/projects/tests/test_role_permissions.py::test_retrieve[member-200] PASSED [ 31%]
+apps/projects/tests/test_role_permissions.py::test_retrieve[admin-200] PASSED [ 34%]
+apps/projects/tests/test_role_permissions.py::test_retrieve[owner-200] PASSED [ 37%]
+apps/projects/tests/test_role_permissions.py::test_create[member-403] PASSED [ 40%]
+apps/projects/tests/test_role_permissions.py::test_create[admin-201] PASSED [ 43%]
+apps/projects/tests/test_role_permissions.py::test_create[owner-201] PASSED [ 46%]
+apps/projects/tests/test_role_permissions.py::test_update[member-403] PASSED [ 50%]
+apps/projects/tests/test_role_permissions.py::test_update[admin-200] PASSED [ 53%]
+apps/projects/tests/test_role_permissions.py::test_update[owner-200] PASSED [ 56%]
+apps/projects/tests/test_role_permissions.py::test_delete[member-403] PASSED [ 59%]
+apps/projects/tests/test_role_permissions.py::test_delete[admin-403] PASSED [ 62%]
+apps/projects/tests/test_role_permissions.py::test_delete[owner-204] PASSED [ 65%]
+apps/tenants/tests/test_managers.py::test_default_manager_raises_with_no_active_tenant PASSED [ 68%]
+apps/tenants/tests/test_managers.py::test_default_manager_filters_to_active_org PASSED [ 71%]
+apps/tenants/tests/test_managers.py::test_save_auto_assigns_active_org_on_create PASSED [ 75%]
+apps/tenants/tests/test_managers.py::test_save_raises_when_creating_without_org_or_context PASSED [ 78%]
+apps/tenants/tests/test_managers.py::test_all_tenants_manager_bypasses_filtering PASSED [ 81%]
+apps/tenants/tests/test_middleware.py::test_missing_x_org_header_is_rejected PASSED [ 84%]
+apps/tenants/tests/test_middleware.py::test_unknown_org_slug_is_rejected PASSED [ 87%]
+apps/tenants/tests/test_middleware.py::test_user_without_membership_gets_403 PASSED [ 90%]
+apps/tenants/tests/test_middleware.py::test_member_with_valid_header_is_allowed PASSED [ 93%]
+apps/tenants/tests/test_middleware.py::test_context_var_resets_after_middleware_call PASSED [ 96%]
+apps/tenants/tests/test_middleware.py::test_context_var_does_not_leak_between_requests PASSED [100%]
+
+=============================== warnings summary ===============================
+apps/projects/tests/test_isolation.py: 6 warnings
+apps/projects/tests/test_mass_assignment.py: 1 warning
+apps/projects/tests/test_role_permissions.py: 27 warnings
+apps/tenants/tests/test_managers.py: 7 warnings
+apps/tenants/tests/test_middleware.py: 3 warnings
+  /home/pewang/saas-tenant-starter/.venv/lib/python3.12/site-packages/factory/django.py:182: DeprecationWarning: UserFactory._after_postgeneration will stop saving the instance after postgeneration hooks in the next major release.
+  If the save call is extraneous, set skip_postgeneration_save=True in the UserFactory.Meta.
+  To keep saving the instance, move the save call to your postgeneration hooks or override _after_postgeneration.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 32 passed, 44 warnings in 8.31s ========================
+pytest exit: 0
+$ ruff check .
+All checks passed!
+ruff exit: 0
+
+################ 2. Live API checks (runserver + curl, HTTP Basic auth) ################
+== Smoke test against live server ==
+$ alice (owner of acme) creates a project
+{"id":1,"name":"Website","description":"","organization":"acme","created_by":1,"created_at":"2026-10-07T12:17:20.766308Z","updated_at":"2026-10-07T12:17:20.766320Z"}  -> HTTP 201
+
+$ alice lists acme projects
+[{"id":1,"name":"Website","description":"","organization":"acme","created_by":1,"created_at":"2026-10-07T12:17:20.766308Z","updated_at":"2026-10-07T12:17:20.766320Z"}]  -> HTTP 200
+
+$ bob (beta only) lists acme projects
+{"detail":"You do not have permission to perform this action in this organization."}  -> HTTP 403
+
+$ bob tries to fetch acme project id 1 via his own org
+{"detail":"No Project matches the given query."}  -> HTTP 404
+
+$ no X-Org header
+{"detail": "The X-Org header is required."}  -> HTTP 400
+
+== W1: org slug enumeration (anonymous) ==
+$ anonymous, existing slug
+{"detail":"Authentication credentials were not provided."}  -> HTTP 403
+
+$ anonymous, non-existent slug
+{"detail": "Not a member of this organization."}  -> HTTP 403
+
+== W1b: org slug enumeration (Basic auth, non-member) ==
+$ bob, existing slug he is not in
+{"detail":"You do not have permission to perform this action in this organization."}  -> HTTP 403
+
+$ bob, non-existent slug
+{"detail": "Not a member of this organization."}  -> HTTP 403
+
+== W2: wrong password still distinguishes slugs ==
+$ wrong password, existing slug
+{"detail":"Invalid username/password."}  -> HTTP 403
+
+$ wrong password, non-existent slug
+{"detail": "Not a member of this organization."}  -> HTTP 403
+
+
+################ 3. Code-level weakness checks (manage.py shell) ################
+== W3: explicit organization bypasses tenant context on save ==
+active org = acme; row written to org = beta
+existing acme project moved to org = beta
+
+== W4: reverse relation outside a request raises ==
+NoActiveTenantError: Project.objects was queried with no active tenant. Use set_current_org() (normally done fo
+
+== W4b: dumpdata projects ==
+[
+== W5: admin registrations ==
+['auth.Group']
+
+== W6: deploy check (prod-like env) ==
+System check identified some issues:
+WARNINGS:
+?: (security.W004) You have not set a value for the SECURE_HSTS_SECONDS setting. If your entire site is served only over SSL, you may want to consider setting a value and enabling HTTP Strict Transport Security. Be sure to read the documentation first; enabling HSTS carelessly can cause serious, irreversible problems.
+?: (security.W008) Your SECURE_SSL_REDIRECT setting is not set to True. Unless your site should be available over both SSL and non-SSL connections, you may want to either set this setting True or configure a load balancer or reverse-proxy server to redirect all connections to HTTPS.
+?: (security.W009) Your SECRET_KEY has less than 50 characters, less than 5 unique characters, or it's prefixed with 'django-insecure-' indicating that it was generated automatically by Django. Please generate a long and random value, otherwise many of Django's security-critical features will be vulnerable to attack.
+?: (security.W012) SESSION_COOKIE_SECURE is not set to True. Using a secure-only session cookie makes it more difficult for network traffic sniffers to hijack user sessions.
+?: (security.W016) You have 'django.middleware.csrf.CsrfViewMiddleware' in your MIDDLEWARE, but you have not set CSRF_COOKIE_SECURE to True. Using a secure-only CSRF cookie makes it more difficult for network traffic sniffers to steal the CSRF token.
+System check identified 5 issues (0 silenced).
+(dumpdata full error:) CommandError: Unable to serialize database: Project.objects was queried with no active tenant.

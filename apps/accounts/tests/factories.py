@@ -2,6 +2,8 @@ import factory
 
 from apps.accounts.models import User
 
+DEFAULT_PASSWORD = "testpass123"
+
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -13,6 +15,6 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def password(self, create, extracted, **kwargs):
-        self.set_password(extracted or "testpass123")
+        self.set_password(extracted or DEFAULT_PASSWORD)
         if create:
             self.save()
