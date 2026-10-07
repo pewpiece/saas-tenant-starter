@@ -4,9 +4,10 @@ from rest_framework.viewsets import ModelViewSet
 from apps.projects.models import Project
 from apps.projects.permissions import ProjectRolePermission
 from apps.projects.serializers import ProjectSerializer
+from apps.tenants.views import TenantScopedViewMixin
 
 
-class ProjectViewSet(ModelViewSet):
+class ProjectViewSet(TenantScopedViewMixin, ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated, ProjectRolePermission]
 
