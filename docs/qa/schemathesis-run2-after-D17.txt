@@ -1,0 +1,53 @@
+======================= Schemathesis test session starts =======================
+Schema location: http://127.0.0.1:8002/api/schema/
+Base URL: http://127.0.0.1:8002
+Specification version: Open API 3.0.3
+Random seed: 20261007
+Workers: 1
+Collected API operations: 21
+Collected API links: 0
+API probing: ...API probing: SUCCESS
+Schema analysis: ...Schema analysis: SKIP
+
+GET /api/audit-log/ .                                                     [  4%]
+POST /api/auth/signup/ .                                                  [  9%]
+GET /api/invitations/ .                                                   [ 14%]
+POST /api/invitations/ .                                                  [ 19%]
+GET /api/invitations/{id}/ .                                              [ 23%]
+DELETE /api/invitations/{id}/ .                                           [ 28%]
+POST /api/invitations/accept/ .                                           [ 33%]
+GET /api/me/ .                                                            [ 38%]
+GET /api/members/ .                                                       [ 42%]
+GET /api/members/{id}/ .                                                  [ 47%]
+PATCH /api/members/{id}/ .                                                [ 52%]
+DELETE /api/members/{id}/ .                                               [ 57%]
+GET /api/projects/ .                                                      [ 61%]
+POST /api/projects/ .                                                     [ 66%]
+GET /api/projects/{id}/ .                                                 [ 71%]
+PUT /api/projects/{id}/ .                                                 [ 76%]
+PATCH /api/projects/{id}/ .                                               [ 80%]
+DELETE /api/projects/{id}/ .                                              [ 85%]
+GET /api/projects/export/ .                                               [ 90%]
+GET /api/subscription/ .                                                  [ 95%]
+PATCH /api/subscription/ .                                                [100%]
+
+=================================== SUMMARY ====================================
+
+Performed checks:
+    not_a_server_error                              1050 / 1050 passed          PASSED 
+    status_code_conformance                         1050 / 1050 passed          PASSED 
+    content_type_conformance                        1050 / 1050 passed          PASSED 
+    response_headers_conformance                    1050 / 1050 passed          PASSED 
+    response_schema_conformance                     1050 / 1050 passed          PASSED 
+    negative_data_rejection                         1050 / 1050 passed          PASSED 
+    ignored_auth                                    1050 / 1050 passed          PASSED 
+
+WARNINGS:
+  - `GET /api/invitations/{id}/` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `DELETE /api/invitations/{id}/` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /api/invitations/accept/` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /api/members/{id}/` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `DELETE /api/members/{id}/` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `PUT /api/projects/{id}/` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+
+============================= 21 passed in 246.15s =============================

@@ -43,6 +43,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedAuditLogEntryList'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/auth/signup/:
     post:
       operationId: auth_signup_create
@@ -70,6 +95,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/SignupResponse'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/invitations/:
     get:
       operationId: invitations_list
@@ -108,6 +145,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedInvitationList'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       operationId: invitations_create
       description: |-
@@ -145,6 +207,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Invitation'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/invitations/{id}/:
     get:
       operationId: invitations_retrieve
@@ -177,6 +264,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Invitation'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       operationId: invitations_destroy
       description: |-
@@ -204,6 +316,37 @@ paths:
       responses:
         '204':
           description: No response body
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/invitations/accept/:
     post:
       operationId: invitations_accept_create
@@ -237,6 +380,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/AcceptInvitationResponse'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/me/:
     get:
       operationId: me_retrieve
@@ -257,6 +425,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Me'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/members/:
     get:
       operationId: members_list
@@ -299,6 +492,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedMemberList'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/members/{id}/:
     get:
       operationId: members_retrieve
@@ -335,6 +553,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Member'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     patch:
       operationId: members_partial_update
       description: |-
@@ -381,6 +624,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/Member'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: 'Conflict: an organization must keep at least one owner.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       operationId: members_destroy
       description: |-
@@ -412,6 +692,43 @@ paths:
       responses:
         '204':
           description: No response body
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: 'Conflict: an organization must keep at least one owner.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/projects/:
     get:
       operationId: projects_list
@@ -460,6 +777,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedProjectList'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       operationId: projects_create
       description: |-
@@ -507,6 +849,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/projects/{id}/:
     get:
       operationId: projects_retrieve
@@ -549,6 +916,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     put:
       operationId: projects_update
       description: |-
@@ -602,6 +994,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     patch:
       operationId: projects_partial_update
       description: |-
@@ -654,6 +1077,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       operationId: projects_destroy
       description: |-
@@ -691,6 +1145,37 @@ paths:
       responses:
         '204':
           description: No response body
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/projects/export/:
     get:
       operationId: projects_export_retrieve
@@ -714,6 +1199,31 @@ paths:
               schema:
                 type: string
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/subscription/:
     get:
       operationId: subscription_retrieve
@@ -742,6 +1252,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Subscription'
           description: ''
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found in this organization (or page out of range).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     patch:
       operationId: subscription_partial_update
       description: |-
@@ -780,6 +1315,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Subscription'
           description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     AcceptInvitationRequest:
@@ -1249,6 +1809,14 @@ components:
       - members
       - pending_invitations
       - projects
+    Error:
+      type: object
+      description: Error body. `detail` holds the message; validation errors map field
+        names to lists of messages instead.
+      properties:
+        detail:
+          type: string
+      additionalProperties: true
   securitySchemes:
     basicAuth:
       type: http
