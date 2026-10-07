@@ -1,0 +1,322 @@
+======================= Schemathesis test session starts =======================
+Schema location: http://127.0.0.1:8002/api/schema/
+Base URL: http://127.0.0.1:8002
+Specification version: Open API 3.0.3
+Random seed: 20261007
+Workers: 1
+Collected API operations: 21
+Collected API links: 0
+API probing: ...API probing: SUCCESS
+Schema analysis: ...Schema analysis: SKIP
+
+GET /api/audit-log/ F                                                     [  4%]
+POST /api/auth/signup/ F                                                  [  9%]
+GET /api/invitations/ F                                                   [ 14%]
+POST /api/invitations/ F                                                  [ 19%]
+GET /api/invitations/{id}/ F                                              [ 23%]
+DELETE /api/invitations/{id}/ F                                           [ 28%]
+POST /api/invitations/accept/ F                                           [ 33%]
+GET /api/me/ .                                                            [ 38%]
+GET /api/members/ F                                                       [ 42%]
+GET /api/members/{id}/ F                                                  [ 47%]
+PATCH /api/members/{id}/ F                                                [ 52%]
+DELETE /api/members/{id}/ F                                               [ 57%]
+GET /api/projects/ F                                                      [ 61%]
+POST /api/projects/ .                                                     [ 66%]
+GET /api/projects/{id}/ F                                                 [ 71%]
+PUT /api/projects/{id}/ F                                                 [ 76%]
+PATCH /api/projects/{id}/ F                                               [ 80%]
+DELETE /api/projects/{id}/ F                                              [ 85%]
+GET /api/projects/export/ .                                               [ 90%]
+GET /api/subscription/ .                                                  [ 95%]
+PATCH /api/subscription/ F                                                [100%]
+
+=================================== FAILURES ===================================
+_____________________________ GET /api/audit-log/ ______________________________
+1. Test Case ID: udFB3f
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"Invalid page."}`
+
+Reproduce with: 
+
+    curl -X GET -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' 'http://127.0.0.1:8002/api/audit-log/?page=0'
+
+____________________________ POST /api/auth/signup/ ____________________________
+1. Test Case ID: 5pDPh3
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 201
+
+[400] Bad Request:
+
+    `{"password":["The password is too similar to the email.","This password is too short. It must contain at least 8 characters.","This password is too common.","This password is entirely numeric."]}`
+
+Reproduce with: 
+
+    curl -X POST -H 'X-Org: qa-org-0' -H 'Content-Type: application/json' -H 'Authorization: [Filtered]' -d '{"email": "0@A.COM", "organization_name": "0", "password": "0"}' http://127.0.0.1:8002/api/auth/signup/
+
+____________________________ GET /api/invitations/ _____________________________
+1. Test Case ID: f4qwHo
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"Invalid page."}`
+
+Reproduce with: 
+
+    curl -X GET -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' 'http://127.0.0.1:8002/api/invitations/?page=0'
+
+____________________________ POST /api/invitations/ ____________________________
+1. Test Case ID: 4n3d9N
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 201
+
+[400] Bad Request:
+
+    `{"email":["This email already has a pending invitation."]}`
+
+Reproduce with: 
+
+    curl -X POST -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -H 'Cookie: [Filtered]' -d '{"email": "0@A.COM"}' http://127.0.0.1:8002/api/invitations/
+
+__________________________ GET /api/invitations/{id}/ __________________________
+1. Test Case ID: uiLvka
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"No Invitation matches the given query."}`
+
+Reproduce with: 
+
+    curl -X GET -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/invitations/0/
+
+________________________ DELETE /api/invitations/{id}/ _________________________
+1. Test Case ID: 4cVyeT
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 204
+
+[404] Not Found:
+
+    `{"detail":"No Invitation matches the given query."}`
+
+Reproduce with: 
+
+    curl -X DELETE -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/invitations/0/
+
+________________________ POST /api/invitations/accept/ _________________________
+1. Test Case ID: jASppM
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"token":"This invitation is invalid, expired or has already been used."}`
+
+Reproduce with: 
+
+    curl -X POST -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -H 'Cookie: [Filtered]' -d '{"token": "0"}' http://127.0.0.1:8002/api/invitations/accept/
+
+______________________________ GET /api/members/ _______________________________
+1. Test Case ID: iEgsY6
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"Invalid page."}`
+
+Reproduce with: 
+
+    curl -X GET -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' 'http://127.0.0.1:8002/api/members/?page=0'
+
+____________________________ GET /api/members/{id}/ ____________________________
+1. Test Case ID: Je5ctE
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"No Membership matches the given query."}`
+
+Reproduce with: 
+
+    curl -X GET -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/members/0/
+
+___________________________ PATCH /api/members/{id}/ ___________________________
+1. Test Case ID: B9dFNH
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"No Membership matches the given query."}`
+
+Reproduce with: 
+
+    curl -X PATCH -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/members/0/
+
+__________________________ DELETE /api/members/{id}/ ___________________________
+1. Test Case ID: LQ1sdn
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 204
+
+[404] Not Found:
+
+    `{"detail":"No Membership matches the given query."}`
+
+Reproduce with: 
+
+    curl -X DELETE -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/members/0/
+
+______________________________ GET /api/projects/ ______________________________
+1. Test Case ID: NYZG9G
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"Invalid page."}`
+
+Reproduce with: 
+
+    curl -X GET -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' 'http://127.0.0.1:8002/api/projects/?page=0'
+
+___________________________ GET /api/projects/{id}/ ____________________________
+1. Test Case ID: lHlxiL
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"No Project matches the given query."}`
+
+Reproduce with: 
+
+    curl -X GET -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/projects/0/
+
+___________________________ PUT /api/projects/{id}/ ____________________________
+1. Test Case ID: 7DdcuC
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"No Project matches the given query."}`
+
+Reproduce with: 
+
+    curl -X PUT -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -H 'Cookie: [Filtered]' -d '{"name": "0"}' http://127.0.0.1:8002/api/projects/0/
+
+__________________________ PATCH /api/projects/{id}/ ___________________________
+1. Test Case ID: 9MSLpR
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    `{"detail":"No Project matches the given query."}`
+
+Reproduce with: 
+
+    curl -X PATCH -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/projects/0/
+
+__________________________ DELETE /api/projects/{id}/ __________________________
+1. Test Case ID: 9nxipn
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 204
+
+[404] Not Found:
+
+    `{"detail":"No Project matches the given query."}`
+
+Reproduce with: 
+
+    curl -X DELETE -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/projects/0/
+
+___________________________ PATCH /api/subscription/ ___________________________
+1. Test Case ID: 6BykUJ
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"plan":["This field is required."]}`
+
+Reproduce with: 
+
+    curl -X PATCH -H 'X-Org: qa-org-0' -H 'Authorization: [Filtered]' -H 'Cookie: [Filtered]' http://127.0.0.1:8002/api/subscription/
+
+=================================== SUMMARY ====================================
+
+Performed checks:
+    not_a_server_error                              419 / 419 passed          PASSED 
+    status_code_conformance                         238 / 419 passed          FAILED 
+    content_type_conformance                        419 / 419 passed          PASSED 
+    response_headers_conformance                    419 / 419 passed          PASSED 
+    response_schema_conformance                     419 / 419 passed          PASSED 
+    negative_data_rejection                         419 / 419 passed          PASSED 
+    ignored_auth                                    419 / 419 passed          PASSED 
+
+Note: Use the 'X-Schemathesis-TestCaseId' header to correlate test case ids from failure messages with server logs for debugging.
+
+Note: To replicate these test failures, rerun with `--hypothesis-seed=20261007`
+
+======================== 4 passed, 17 failed in 101.93s ========================
