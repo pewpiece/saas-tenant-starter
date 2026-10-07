@@ -1,0 +1,12 @@
+[run]
+branch = True
+source = apps, config
+omit =
+    */migrations/*
+    */tests/*
+    config/asgi.py
+    config/wsgi.py
+
+[report]
+show_missing = True
+skip_empty = True

@@ -22,9 +22,3 @@ class IsTenantAdmin(BasePermission):
     def has_permission(self, request, view):
         return has_role(request, Membership.Role.ADMIN)
 
-
-class IsTenantOwner(BasePermission):
-    message = "Only an owner of this organization can do this."
-
-    def has_permission(self, request, view):
-        return has_role(request, Membership.Role.OWNER)

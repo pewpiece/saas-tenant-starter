@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, "milestone-*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+  # manage.py commands in CI use the test settings (no .env in CI).
+  DJANGO_SETTINGS_MODULE: config.test_settings
+  POSTGRES_HOST: localhost
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: saas_starter
+  POSTGRES_USER: saas_starter
+  POSTGRES_PASSWORD: saas_starter
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Ruff
+        run: ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: saas_starter
+          POSTGRES_USER: saas_starter
+          POSTGRES_PASSWORD: saas_starter
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U saas_starter"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: No missing migrations
+        run: python manage.py makemigrations --check --dry-run
+      - name: Tests with branch coverage (fail under 90%)
+        run: pytest --cov --cov-report=term-missing:skip-covered --cov-report=xml --cov-fail-under=90
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: OpenAPI schema is valid and up to date
+        run: |
+          python manage.py spectacular --validate --fail-on-warn --file /tmp/openapi.yaml
+          diff -u openapi.yaml /tmp/openapi.yaml || {
+            echo "::error::openapi.yaml is out of date. Regenerate it with: python manage.py spectacular --validate --fail-on-warn --file openapi.yaml"
+            exit 1
+          }

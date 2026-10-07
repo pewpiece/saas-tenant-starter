@@ -9,3 +9,5 @@ db.sqlite3
 *.log
 .coverage
 htmlcov/
+mutants/
+.mutmut-cache
