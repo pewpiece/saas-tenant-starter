@@ -75,7 +75,10 @@ class Membership(models.Model):
         # this only guards removing a single membership.
         with transaction.atomic():
             self._lock_organization()
-            if self.role == self.Role.OWNER and self._is_last_owner():
+            # Check the stored role: an unsaved in-memory change must not
+            # bypass the guard (D-19).
+            stored_role = Membership.objects.filter(pk=self.pk).values_list("role", flat=True).first()
+            if stored_role == self.Role.OWNER and self._is_last_owner():
                 raise LastOwnerError("An organization must keep at least one owner.")
             return super().delete(*args, **kwargs)
 
