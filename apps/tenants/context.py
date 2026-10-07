@@ -5,6 +5,7 @@ async views/ASGI, where multiple requests can interleave on the same thread.
 """
 
 import contextvars
+from contextlib import contextmanager
 
 _current_org_var: contextvars.ContextVar = contextvars.ContextVar("current_org", default=None)
 
@@ -22,3 +23,18 @@ def set_current_org(org):
 def reset_current_org(token):
     """Undo a set_current_org() call. Must be called with that call's token."""
     _current_org_var.reset(token)
+
+
+@contextmanager
+def tenant_context(org):
+    """Run a block of system code (shell, management command, task) as `org`.
+
+    Inside the block, tenant-scoped managers behave exactly as they do in a
+    request for that org. The previous tenant (usually none) is restored on
+    exit, even if the block raises, and blocks can be nested.
+    """
+    token = set_current_org(org)
+    try:
+        yield org
+    finally:
+        reset_current_org(token)
