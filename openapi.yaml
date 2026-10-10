@@ -35,6 +35,7 @@ paths:
       - audit-log
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -107,6 +108,101 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: |-
+        Exchange email + password for a bearer token (POST), or revoke the
+        token being used (DELETE).
+
+        Wrong passwords count toward the same per-IP lockout as HTTP Basic auth.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRequestRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: ''
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: auth_token_destroy
+      description: |-
+        Exchange email + password for a bearer token (POST), or revoke the
+        token being used (DELETE).
+
+        Wrong passwords count toward the same per-IP lockout as HTTP Basic auth.
+      tags:
+      - auth
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          description: Invalid request (validation error or malformed body).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Missing or invalid credentials (`WWW-Authenticate: Basic`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden: not a member of the X-Org organization, role too
+            low, or plan limit.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests or failed logins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/invitations/:
     get:
       operationId: invitations_list
@@ -137,6 +233,7 @@ paths:
       - invitations
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -199,6 +296,7 @@ paths:
         required: true
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '201':
@@ -256,6 +354,7 @@ paths:
       - invitations
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -312,6 +411,7 @@ paths:
       - invitations
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '204':
@@ -371,6 +471,7 @@ paths:
         required: true
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -417,6 +518,7 @@ paths:
       - me
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -484,6 +586,7 @@ paths:
       - members
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -545,6 +648,7 @@ paths:
       - members
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -616,6 +720,7 @@ paths:
               $ref: '#/components/schemas/PatchedMemberRequest'
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -688,6 +793,7 @@ paths:
       - members
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '204':
@@ -769,6 +875,7 @@ paths:
       - projects
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -841,6 +948,7 @@ paths:
         required: true
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '201':
@@ -908,6 +1016,7 @@ paths:
       - projects
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -986,6 +1095,7 @@ paths:
         required: true
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -1069,6 +1179,7 @@ paths:
               $ref: '#/components/schemas/PatchedProjectRequest'
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -1141,6 +1252,7 @@ paths:
       - projects
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '204':
@@ -1191,6 +1303,7 @@ paths:
       - projects
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -1244,6 +1357,7 @@ paths:
       - subscription
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -1307,6 +1421,7 @@ paths:
               $ref: '#/components/schemas/PatchedChangePlanRequest'
       security:
       - basicAuth: []
+      - bearerAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -1796,6 +1911,32 @@ components:
       - plan
       - usage
       - warnings
+    TokenRequestRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'Send as `Authorization: Bearer <token>`.'
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - expires_at
+      - token
     Usage:
       type: object
       properties:
@@ -1821,6 +1962,9 @@ components:
     basicAuth:
       type: http
       scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
     cookieAuth:
       type: apiKey
       in: cookie

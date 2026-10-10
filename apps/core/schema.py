@@ -32,6 +32,14 @@ class ThrottledBasicAuthenticationScheme(OpenApiAuthenticationExtension):
         return {"type": "http", "scheme": "basic"}
 
 
+class BearerTokenAuthenticationScheme(OpenApiAuthenticationExtension):
+    target_class = "apps.core.authentication.BearerTokenAuthentication"
+    name = "bearerAuth"
+
+    def get_security_definition(self, auto_schema):
+        return {"type": "http", "scheme": "bearer"}
+
+
 ERROR_SCHEMA = {
     "type": "object",
     "description": (

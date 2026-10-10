@@ -1,3 +1,8 @@
+import hashlib
+import secrets
+from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
@@ -49,3 +54,38 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         ensure_not_sole_owner(self)
         return super().delete(*args, **kwargs)
+
+
+class AuthToken(models.Model):
+    """A bearer token a client swaps a password for once, then sends instead.
+
+    Only the SHA-256 of the token is stored, so a database leak does not leak
+    usable credentials. Tokens are 256-bit random values, so an unsalted fast
+    hash is safe, and verifying one costs a single indexed lookup instead of
+    a PBKDF2 run (D-18).
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="auth_tokens")
+    key_hash = models.CharField(max_length=64, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"token for {self.user_id} (expires {self.expires_at:%Y-%m-%d %H:%M})"
+
+    @staticmethod
+    def hash_key(key):
+        return hashlib.sha256(key.encode()).hexdigest()
+
+    @classmethod
+    def issue(cls, user):
+        """Create a token for `user`; returns (instance, plaintext key)."""
+        key = secrets.token_urlsafe(32)
+        ttl = timedelta(hours=settings.AUTH_TOKEN_TTL_HOURS)
+        token = cls.objects.create(
+            user=user, key_hash=cls.hash_key(key), expires_at=timezone.now() + ttl
+        )
+        return token, key

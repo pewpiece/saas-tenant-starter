@@ -83,3 +83,13 @@ class MeSerializer(serializers.ModelSerializer):
 
 class SignupResponseSerializer(serializers.Serializer):
     user = MeSerializer()
+
+
+class TokenRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
+
+
+class TokenResponseSerializer(serializers.Serializer):
+    token = serializers.CharField(help_text="Send as `Authorization: Bearer <token>`.")
+    expires_at = serializers.DateTimeField()
