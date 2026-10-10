@@ -35,6 +35,7 @@ pytestmark = pytest.mark.django_db
 ROUTES = api_routes()
 
 PUBLIC_ROUTES = {
+    "api/auth/token/",
     "api/auth/signup/",
     "api/me/",
     "api/invitations/accept/",

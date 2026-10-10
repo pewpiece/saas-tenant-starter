@@ -71,17 +71,15 @@ Result at end of phase: 213 tests pass, ruff clean, schema valid with
 ## State at the end
 
 - 456 tests pass, 0 warnings, ruff clean, schema valid with `--fail-on-warn`.
-- 20 defects logged: 18 fixed, 2 open (D-18 Medium, D-20 Low).
+- 20 defects logged, all fixed (D-18 and D-20 afterwards, in 2a2f46a). 485 tests.
 - Pushed to https://github.com/pewpiece/saas-tenant-starter (private);
   PR #1 into `master`. CI passed on GitHub (lint, tests with coverage gate,
   schema).
 
 ## Next (if work continues)
 
-1. D-18: add token or session login so clients stop sending the password
-   on every request.
-2. D-20: add CSP / Permissions-Policy headers for the admin and Swagger UI.
-3. Consider PostgreSQL row-level security as a second isolation layer.
+1. Re-run Locust (with bearer tokens) and ZAP to measure D-18 / D-20.
+2. Consider PostgreSQL row-level security as a second isolation layer.
 
 ## Open issues
 

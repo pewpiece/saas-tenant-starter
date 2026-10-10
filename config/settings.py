@@ -53,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.core.middleware.SecurityHeadersMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -121,6 +122,7 @@ REST_FRAMEWORK = {
     # class, so unauthenticated requests get a proper 401 instead of a 403.
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "apps.core.authentication.ThrottledBasicAuthentication",
+        "apps.core.authentication.BearerTokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
@@ -168,6 +170,9 @@ SPECTACULAR_SETTINGS = {
 # Failed HTTP Basic logins per client IP before a temporary lockout (429).
 AUTH_FAILURE_LIMIT = env.int("DJANGO_AUTH_FAILURE_LIMIT", default=10)
 AUTH_FAILURE_WINDOW = env.int("DJANGO_AUTH_FAILURE_WINDOW", default=300)
+
+# Lifetime of bearer tokens issued by POST /api/auth/token/.
+AUTH_TOKEN_TTL_HOURS = env.int("DJANGO_AUTH_TOKEN_TTL_HOURS", default=24 * 14)
 
 
 # Transport security. Defaults are strict whenever DEBUG is off; each one can
