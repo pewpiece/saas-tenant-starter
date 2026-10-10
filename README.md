@@ -37,7 +37,7 @@ python manage.py runserver
 
 ```bash
 docker compose up -d
-pytest                              # 456 tests
+pytest                              # 485 tests
 pytest --cov --cov-fail-under=90    # with branch coverage (CI gate)
 ```
 
@@ -114,6 +114,16 @@ curl -u user@example.com:password \
   http://localhost:8000/api/projects/
 ```
 
+Basic auth hashes the password on every request. Real clients should log in
+once and send the token instead (valid 14 days, `DJANGO_AUTH_TOKEN_TTL_HOURS`):
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/token/ \
+  -H 'Content-Type: application/json' \
+  -d '{"email": "user@example.com", "password": "password"}' | jq -r .token)
+curl -H "Authorization: Bearer $TOKEN" -H "X-Org: acme" http://localhost:8000/api/projects/
+```
+
 List endpoints are paginated (`count`, `next`, `previous`, `results`;
 20 per page, `?page_size=` up to 100).
 
@@ -122,6 +132,7 @@ List endpoints are paginated (`count`, `next`, `previous`, `results`;
 | Endpoint | Tenant (`X-Org`) | Purpose |
 |---|:---:|---|
 | `POST /api/auth/signup/` | no | Create a user + organization (caller becomes owner, Free plan) |
+| `POST/DELETE /api/auth/token/` | no | Log in for a bearer token; revoke the token in use |
 | `GET /api/me/` | no | Current user and their organizations (valid `X-Org` values) |
 | `POST /api/invitations/accept/` | no | Accept an invitation token (new users set a password) |
 | `/api/projects/` (+ `/export/`) | yes | Projects; CSV export is Pro-only |

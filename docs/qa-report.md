@@ -11,8 +11,9 @@ run; raw outputs are linked.
   starting from a committed failing test.
 - QA found 10 more defects: 3 high-severity ORM write-path bypasses, 4 found
   by Schemathesis, Locust, mutmut and ZAP, and 3 by feature and boundary tests.
-- Of the 20 defects, **18 are fixed and 2 are open** (D-18 performance
-  Medium, D-20 hardening headers Low). No High defect is open.
+- Of the 20 defects, **all are fixed** (D-18 and D-20 were fixed after
+  the QA cycle and have unit tests but were not re-measured with Locust/ZAP).
+  No defect is open.
 - Phase 2 added signup, invitations, member management, Free/Pro plans with
   limits, an append-only audit log, pagination, throttling and an OpenAPI
   schema.
@@ -111,7 +112,7 @@ Full records (steps, expected vs actual, failing test, fix commit):
 | D-06 | Admin had no models; docs inaccurate | Medium | P2 | M1 review | Fixed |
 | D-07 | User deletion cascaded projects in every org; orgs could lose all owners | Medium | P2 | M1 review | Fixed |
 | D-15 | Invitation without `role` -> 500 | Medium | P2 | Plan tests | Fixed |
-| D-18 | Basic auth hashes the password on every request (~21 req/s) | Medium | P2 | Locust | **Open** |
+| D-18 | Basic auth hashes the password on every request (~21 req/s) | Medium | P2 | Locust | Fixed (token login) |
 | D-19 | Last-owner guard bypassed by an unsaved role change before `delete()` | Medium | P2 | Mutation testing | Fixed |
 | D-08 | No pagination/throttling; Basic auth brute force | Low | P2 | M1 review | Fixed |
 | D-14 | Schema generation crash from DRF's conditional-unique validator | Low | P2 | Deploy-check test | Fixed |
@@ -119,7 +120,7 @@ Full records (steps, expected vs actual, failing test, fix commit):
 | D-10 | Test gaps (no real auth, status-only assertions, warnings) | Low | P3 | M1 review | Fixed |
 | D-16 | Email local part over 64 octets accepted | Low | P3 | Boundary tests | Fixed |
 | D-17 | OpenAPI schema documented no error responses | Low | P3 | Schemathesis | Fixed |
-| D-20 | No CSP / Permissions-Policy / COEP / CORP on HTML pages | Low | P3 | ZAP | **Open** |
+| D-20 | No CSP / Permissions-Policy / COEP / CORP on HTML pages | Low | P3 | ZAP | Fixed (security headers) |
 
 By severity: 6 High, 7 Medium, 7 Low. By source: 10 from the Milestone 1
 review, 3 from the write-path probe, 7 from testing activities.
@@ -171,9 +172,9 @@ exist.
 
 ## 7. Known remaining risks
 
-1. **D-18, throughput.** HTTP Basic auth verifies the PBKDF2 password on
+1. **D-18, throughput (fixed: bearer tokens).** HTTP Basic auth still verifies the PBKDF2 password on
    every request (151 ms CPU). Production clients need tokens or sessions.
-2. **D-20, browser hardening headers** missing on the admin and Swagger UI.
+2. **D-20, browser hardening headers (fixed).** Swagger UI not verified in a browser.
 3. **Isolation is enforced in the application only.** Code that uses
    `all_tenants`, `all_tenants.raw()` or `connection.cursor()` bypasses it
    by design. PostgreSQL row-level security would add a second layer.

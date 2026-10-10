@@ -27,9 +27,9 @@ any release).
 | D-15 | `POST /api/invitations/` without `role` returns 500 | Medium | P2 | `test_invitations.py::test_role_defaults_to_member_when_omitted` | d6f066f | Fixed |
 | D-16 | Invitation accepts an email whose local part exceeds 64 octets | Low | P3 | `test_boundaries.py::test_invitation_email_local_part_length` | 313d169 | Fixed |
 | D-17 | OpenAPI schema documents no error responses | Low | P3 | `apps/core/tests/test_openapi_contract.py` | 97e5968 | Fixed |
-| D-18 | HTTP Basic auth costs a 151 ms password hash per request, capping throughput at ~21 req/s | Medium | P2 | Locust: `docs/qa/load-test.md` | — | Open |
+| D-18 | HTTP Basic auth costs a 151 ms password hash per request, capping throughput at ~21 req/s | Medium | P2 | Locust: `docs/qa/load-test.md` | 2a2f46a | Fixed |
 | D-19 | Last-owner guard on delete trusts the unsaved in-memory role | Medium | P2 | `test_mutation_findings.py::test_delete_checks_the_stored_role_not_the_unsaved_one` | 6045a53 | Fixed |
-| D-20 | HTML pages (admin, Swagger UI) send no CSP / Permissions-Policy / COEP headers | Low | P3 | ZAP baseline: `docs/qa/zap/baseline-admin.txt` | — | Open |
+| D-20 | HTML pages (admin, Swagger UI) send no CSP / Permissions-Policy / COEP headers | Low | P3 | ZAP baseline: `docs/qa/zap/baseline-admin.txt` | 2a2f46a | Fixed |
 
 ---
 
@@ -296,9 +296,12 @@ any release).
 - **Expected:** throughput bounded by the application and database.
 - **Actual:** ~21 req/s, minimum latency 166 ms, of which 151 ms is PBKDF2
   `check_password` (720,000 iterations).
-- **Status:** Open. Fixing it needs a token or session login flow, which is a
-  product change outside this milestone; recorded as a known risk in the QA
-  report.
+- **Status:** Fixed (2a2f46a). `POST /api/auth/token/` swaps email + password
+  for an expiring bearer token (`apps.accounts.AuthToken`, SHA-256 stored);
+  clients then send `Authorization: Bearer <token>`, which costs one indexed
+  lookup. `DELETE` revokes it. Failed logins share the Basic-auth lockout.
+  Tests: `apps/accounts/tests/test_token_auth.py`. Not re-measured with
+  Locust; Basic auth still works and still costs a hash per request.
 
 ## D-19: Last-owner guard bypassed by an unsaved role change
 - **Severity / priority:** Medium / P2
@@ -327,5 +330,10 @@ any release).
   in the `next` attribute (false positive: Django escapes it), and three
   informational rules (non-storable content, authentication request and
   session management response identified).
-- **Status:** Open. Recommendation: add `django-csp` (or a small middleware)
-  with a policy that allows the admin's and Swagger UI's assets.
+- **Status:** Fixed (2a2f46a). `apps.core.middleware.SecurityHeadersMiddleware`
+  sets CSP (strict for the API, same-origin for the admin, CDN + inline
+  script for `/api/docs/` only), Permissions-Policy and
+  `Cross-Origin-Embedder-Policy: credentialless`. Tests:
+  `apps/core/tests/test_security_headers.py`. The admin login page was
+  loaded in Chromium with no CSP violations; Swagger UI could not be loaded
+  end to end (the sandbox blocks the jsDelivr CDN), and ZAP was not re-run.
